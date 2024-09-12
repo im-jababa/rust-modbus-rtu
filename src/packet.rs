@@ -2,8 +2,6 @@ use crate::utils::{crc16_modbus, vec_bool_to_vec_u8};
 
 
 pub const BROADCAST: u8 = 0;
-pub const SLAVE_ADDRESS: usize = 0;
-pub const FUNCTION_CODE: usize = 1;
 
 
 /// ### Request
