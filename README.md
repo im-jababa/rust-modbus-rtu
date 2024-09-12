@@ -5,7 +5,7 @@ Modbus RTU crate for rust
 
 ### Usage
 ``` rs
-use modbus_rtu::packet::{Request, RequestError};
+use modbus_rtu::packet::{Request, RequestError, Response};
 
 fn main() {
     // Create a new request
@@ -16,7 +16,7 @@ fn main() {
     };
 
     // Generate packet from the request
-    let packet: Vec<u8> = match read_sensor_req.to_bytes().expect("fail");
+    let packet: Vec<u8> = read_sensor_req.to_bytes().expect("fail");
 
     // Somewhere to read and write
     let port = ...;
@@ -25,7 +25,8 @@ fn main() {
     let _ = port.write_all(&packet);
 
     // Read response
-    let buffer: Vec<u8> = Vec::with_capacity(read_sensor_req.expect_len());
-    let _ = port.read_exact(&mut buffer);
+    let mut response = Response::from_request(read_sensor_req).unwrap();
+    let _ = port.read_exact(&mut response.buffer);
+    // response.analyze() <- WIP...
 }
 ```
