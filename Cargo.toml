@@ -1,6 +1,9 @@
 [package]
 name = "modbus-rtu"
-version = "1.1.0"
+version = "0.1.0"
 edition = "2021"
+authors = ["Park JiSoo <cherryjeesoo@gmail.com>"]
+description = "Create standard Modbus RTU request packets"
+license = "MIT"
 
 [dependencies]
