@@ -1,5 +1,3 @@
-use std::iter::Rev;
-
 use crate::utils::{crc16_modbus, vec_bool_to_vec_u8};
 
 
