@@ -10,6 +10,7 @@ use constraint::DataConstraint;
 /// 
 /// This struct holds a value of generic type `T` and an optional constraint
 /// that can be applied to validate the value.
+#[derive(Debug, Clone, Copy)]
 pub struct Data<T: Ord + Copy> {
 
     /// The value that this Data struct holds.

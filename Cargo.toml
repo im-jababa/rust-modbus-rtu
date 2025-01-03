@@ -7,5 +7,9 @@ description = "Standard Modbus RTU protocols"
 license = "MIT"
 
 [dependencies]
+# No dependencies
 
-[dev-dependencies]
+[features]
+default = []
+master = []
+slave = []

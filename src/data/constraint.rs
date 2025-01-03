@@ -6,7 +6,7 @@
 /// the data undergoes constraint validation.
 /// If an attempt is made to write data that violates these constraints,
 /// the Slave device returns error code 2 (Illegal Data) to the Master device.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum DataConstraint<T: Ord + Clone + Copy> {
     
     /// This constraint allows only a single specific value.
