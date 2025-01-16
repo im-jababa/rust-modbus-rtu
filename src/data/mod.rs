@@ -1,15 +1,13 @@
 pub mod constraint;
 
-
 use constraint::DataConstraint;
 
 
-/// # Data
-/// 
 /// Represents Modbus RTU data with an optional constraint.
 /// 
 /// This struct holds a value of generic type `T` and an optional constraint
 /// that can be applied to validate the value.
+#[cfg(feature = "slave")]
 #[derive(Debug, Clone, Copy)]
 pub struct Data<T: Ord + Copy> {
 

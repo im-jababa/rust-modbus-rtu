@@ -10,6 +10,6 @@ license = "MIT"
 # No dependencies
 
 [features]
-default = []
+default = ["slave"]
 master = []
 slave = []
