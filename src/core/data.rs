@@ -1,21 +1,13 @@
+/// Modbus data struct can hold type `T`
 pub struct Data<T>
 where
     T: Copy + Eq + Ord,
 {
+    /// Value that holding.
     value: T,
+
+    /// Value constraint when the master try to write this data.
+    /// value is only constrained when the master try to write.
+    /// Constraint is not checked when the value changed on your firmware.
     constraint: fn(&T) -> bool,
-}
-
-
-impl<T> Data<T>
-where
-    T: Copy + Eq + Ord
-{
-    pub fn new(value: T) -> Data<T> {
-        Data { value, constraint: Data::<T>::constraint_always }
-    }
-
-    fn constraint_always(_: &T) -> bool {
-        true
-    }
 }
