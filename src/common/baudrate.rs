@@ -47,15 +47,15 @@ impl Baudrate {
     }
 
     /// Maps a baudrate value to the corresponding `u32`.
-    fn as_u32(&self) -> u32 {
+    const fn as_u32(&self) -> u32 {
         match self {
-            Baudrate::B1200 => 1_200,
-            Baudrate::B2400 => 2_400,
-            Baudrate::B4800 => 4_800,
-            Baudrate::B9600 => 9_600,
-            Baudrate::B19200 => 19_200,
-            Baudrate::B38400 => 38_400,
-            Baudrate::B57600 => 57_600,
+            Baudrate::B1200   =>   1_200,
+            Baudrate::B2400   =>   2_400,
+            Baudrate::B4800   =>   4_800,
+            Baudrate::B9600   =>   9_600,
+            Baudrate::B19200  =>  19_200,
+            Baudrate::B38400  =>  38_400,
+            Baudrate::B57600  =>  57_600,
             Baudrate::B115200 => 115_200,
         }
     }
