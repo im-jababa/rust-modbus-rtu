@@ -1,4 +1,5 @@
-#![no_std]
+#[cfg(feature = "no_std")]
+pub mod no_std;
 
-
-pub mod core;
+#[cfg(not(feature = "no_std"))]
+pub mod std;

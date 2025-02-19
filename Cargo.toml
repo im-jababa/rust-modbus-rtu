@@ -7,9 +7,9 @@ description = "Standard Modbus RTU protocols"
 license = "MIT"
 
 [dependencies]
-static_assertions = "1"
 
 [features]
-default = ["slave"]
+default = ["master", "no_std"]
 master = []
 slave = []
+no_std = []
