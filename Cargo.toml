@@ -7,9 +7,10 @@ description = "Standard Modbus RTU protocols"
 license = "MIT"
 
 [dependencies]
+heapless = "0.8.0"
 
 [features]
-default = ["master", "no_std"]
+default = ["slave", "no_std"]
+no_std = []
 master = []
 slave = []
-no_std = []
