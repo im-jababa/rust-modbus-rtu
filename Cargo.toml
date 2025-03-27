@@ -6,11 +6,14 @@ authors = ["Park JiSoo <cherryjeesoo@gmail.com>"]
 description = "Standard Modbus RTU protocols"
 license = "MIT"
 
+
 [dependencies]
-heapless = "0.8.0"
+
 
 [features]
-default = ["slave", "no_std"]
-no_std = []
-master = []
+default = ["slave"]
+
+master = ["std"]
 slave = []
+
+std = []

@@ -1,9 +1,6 @@
-// pub mod baudrate;
+#![cfg_attr(feature = "slave", no_std)]
 
-// pub mod function_code;
+pub mod common;
 
-#[cfg(feature = "no_std")]
-pub mod no_std;
-
-#[cfg(not(feature = "no_std"))]
-pub mod std;
+#[cfg(feature = "slave")]
+pub mod slave;
