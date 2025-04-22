@@ -11,6 +11,7 @@
 #[derive(Debug)]
 pub struct DataStructure<const L: usize>([u16; L]);
 
+
 impl<const L: usize> DataStructure<L> {
     /// Creates a new `DataStructure` after validating the input addresses.
     ///
@@ -24,6 +25,20 @@ impl<const L: usize> DataStructure<L> {
     /// ---
     /// # Returns
     /// A new `DataStructure` instance if the validation passes.
+    /// 
+    /// ---
+    /// # Examples
+    /// ```
+    /// use modbus_rtu::slave::DataStructure;
+    /// 
+    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    ///     0x0000,
+    ///     0x0001,
+    ///     0x0002,
+    ///     0x1234,
+    ///     0x5678,
+    /// ]);
+    /// ```
     /// 
     pub const fn new(addresses: [u16; L]) -> DataStructure<L> {
         let _ = Self::validate(&addresses);
@@ -42,6 +57,36 @@ impl<const L: usize> DataStructure<L> {
     /// ---
     /// # Returns
     /// The index of the address in the list if it exists, or panics if not found.
+    /// 
+    /// ---
+    /// # Examples
+    /// ```
+    /// use modbus_rtu::slave::DataStructure;
+    /// 
+    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    ///     0x0000,
+    ///     0x0001,
+    ///     0x0002,
+    ///     0x1234,
+    ///     0x5678,
+    /// ]);
+    /// 
+    /// assert_eq!(STRUCTURE.get(0x0001), 1);
+    /// ```
+    /// 
+    /// The code below will panic at complie time.
+    /// ```should_panic
+    /// # use modbus_rtu::slave::DataStructure;
+    /// # const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// #     0x0000,
+    /// #     0x0001,
+    /// #     0x0002,
+    /// #     0x1234,
+    /// #     0x5678,
+    /// # ]);
+    /// // Will panic!!
+    /// let index = STRUCTURE.get(0x0003);
+    /// ```
     ///
     /// ---
     /// # Panics
@@ -80,8 +125,21 @@ impl<const L: usize> DataStructure<L> {
     /// `Some(index)` if the address exists in the list, or `None` if not found.
     ///
     /// ---
-    /// # Panics
-    /// This function does not panic. It returns `None` if the address is not found.
+    /// # Examples
+    /// ```
+    /// use modbus_rtu::slave::DataStructure;
+    /// 
+    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    ///     0x0000,
+    ///     0x0001,
+    ///     0x0002,
+    ///     0x1234,
+    ///     0x5678,
+    /// ]);
+    /// 
+    /// assert_eq!(STRUCTURE.find(0x0001), Some(1));
+    /// assert_eq!(STRUCTURE.find(0x0003), None);
+    /// ```
     /// 
     pub fn find(&self, address: u16) -> Option<usize> {
         self.0.binary_search(&address).ok()
@@ -99,6 +157,36 @@ impl<const L: usize> DataStructure<L> {
     /// ---
     /// # Returns
     /// The `u16` address located at the given index.
+    /// 
+    /// ---
+    /// # Examples
+    /// ```
+    /// use modbus_rtu::slave::DataStructure;
+    /// 
+    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    ///     0x0000,
+    ///     0x0001,
+    ///     0x0002,
+    ///     0x1234,
+    ///     0x5678,
+    /// ]);
+    /// 
+    /// assert_eq!(STRUCTURE.get_address_by_index(3), 0x1234);
+    /// ```
+    /// 
+    /// The code below will panic at compile time.
+    /// ```should_panic
+    /// # use modbus_rtu::slave::DataStructure;
+    /// # const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// #     0x0000,
+    /// #     0x0001,
+    /// #     0x0002,
+    /// #     0x1234,
+    /// #     0x5678,
+    /// # ]);
+    /// // Will panic!!
+    /// let address: u16 = STRUCTURE.get_address_by_index(10);
+    /// ```
     ///
     /// ---
     /// # Panics
@@ -122,6 +210,7 @@ impl<const L: usize> DataStructure<L> {
     /// ---
     /// # Panics
     /// This function will panic if the addresses are not strictly increasing or contain duplicates.
+    /// 
     const fn validate(addresses: &[u16; L]) -> bool {
         if addresses.len() < 2 {
             return true;

@@ -1,4 +1,5 @@
-pub mod data_model;
+mod data_model;
+pub use data_model::{DataModel, DataStructure};
 
 
-pub struct ModbusSlave;
+// pub struct ModbusSlave;
