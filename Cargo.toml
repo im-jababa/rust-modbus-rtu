@@ -11,9 +11,10 @@ license = "MIT"
 
 
 [features]
-default = ["slave"]
+default = ["slave", "bypass"]
 
 master = ["std"]
 slave = []
+bypass = []
 
 std = []
