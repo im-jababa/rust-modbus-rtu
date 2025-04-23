@@ -2,6 +2,24 @@ mod structure;      pub use structure::DataStructure;
 
 
 /// A data model for accessing values stored at unique 16-bit addresses.
+/// 
+/// ---
+/// # Examples
+/// ```
+/// use modbus_rtu::slave::{DataModel, DataStructure};
+/// 
+/// // Define data structure first.
+/// const DATA_STRUCTURE: DataStructure<4> = DataStructure::new([
+///     0x0001,
+///     0x0002,
+///     0x1234,
+///     0x5678,
+/// ]);
+/// 
+/// // And create a new data model instance with initial value array.
+/// let data_model = DataModel::new(&DATA_STRUCTURE, [0; 4]);
+/// ```
+/// 
 #[derive(Debug)]
 pub struct DataModel<const L: usize, T: Copy> {
     /// The data structure defined as a constant at compile time.
@@ -137,5 +155,53 @@ impl<const L: usize, T: Copy> DataModel<L, T> {
     pub fn find_value(&self, address: u16) -> Option<T> {
         let index = self.structure.find(address)?;
         Some(self.values[index])
+    }
+
+    /// Checks whether the data model is empty.
+    ///
+    /// This returns `true` if the data model contains no entries, which occurs when its length `L` is zero.
+    ///
+    /// ---
+    /// # Returns
+    /// `true` if the data model is empty, `false` otherwise.
+    ///
+    /// ---
+    /// # Examples
+    /// ```
+    /// use modbus_rtu::slave::DataModel;
+    ///
+    /// let empty_model = DataModel::<0, u16>::empty();
+    /// assert!(empty_model.is_empty());
+    /// ```
+    ///
+    pub fn is_empty(&self) -> bool {
+        L == 0
+    }
+}
+
+
+impl<T: Copy> DataModel<0, T> {
+    /// Creates and returns an empty data model with no stored values.
+    ///
+    /// This is useful when a data model is required but no data is needed or used.
+    ///
+    /// ---
+    /// # Returns
+    /// An empty `DataModel` instance with no associated data.
+    ///
+    /// ---
+    /// # Examples
+    /// ```
+    /// use modbus_rtu::slave::{ModbusSlave, DataModel};
+    ///
+    /// let holding_registers = DataModel::empty();
+    /// let input_registers = DataModel::empty();
+    /// 
+    /// // Create modbus slave instance with zero registers
+    /// let modbus_slave = ModbusSlave::new(0x01, holding_registers, input_registers);
+    /// ```
+    ///
+    pub fn empty() -> DataModel<0, T> {
+        DataModel { structure: &DataStructure::EMPTY, values: [] }
     }
 }

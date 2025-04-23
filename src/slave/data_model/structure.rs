@@ -8,6 +8,20 @@
 /// This structure is intended to be defined as a global constant/static value,
 /// and should not be instantiated dynamically.
 /// 
+/// ---
+/// # Examples
+/// ```
+/// use modbus_rtu::slave::DataStructure;
+/// 
+/// // Define data structure as const.
+/// const DATA_STRUCTURE: DataStructure<4> = DataStructure::new([
+///     0x0000,
+///     0x0001,
+///     0x1234,
+///     0x5678,
+/// ]);
+/// ```
+/// 
 #[derive(Debug)]
 pub struct DataStructure<const L: usize>([u16; L]);
 
@@ -93,6 +107,7 @@ impl<const L: usize> DataStructure<L> {
     /// This function will panic if the specified address is not found in the address list.
     /// The panic message will indicate that the address is not registered and should be checked for validity.
     /// 
+    #[inline(always)]
     pub const fn get(&self, address: u16) -> usize {
         let mut left = 0;
         let mut right = self.0.len() - 1;
@@ -225,4 +240,13 @@ impl<const L: usize> DataStructure<L> {
         }
         true
     }
+}
+
+
+impl DataStructure<0> {
+    /// An empty data structure.
+    ///
+    /// This is used to define a data model that does not contain any data.
+    ///
+    pub const EMPTY: DataStructure<0> = DataStructure::new([]);
 }

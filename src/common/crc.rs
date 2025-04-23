@@ -1,3 +1,6 @@
+use super::PacketError;
+
+
 /// Generates CRC-16 Modbus checksum bytes in little-endian order.
 ///
 /// ---
@@ -65,6 +68,7 @@ pub fn gen_bytes(bytes: &[u8]) -> [u8; 2] {
     crc.to_le_bytes()
 }
 
+
 /// Validates the CRC-16 checksum at the end of a Modbus RTU message.
 ///
 /// ---
@@ -78,67 +82,30 @@ pub fn gen_bytes(bytes: &[u8]) -> [u8; 2] {
 /// ---
 /// # Examples
 /// ```rust
-/// use modbus_rtu::common::crc;
+/// use modbus_rtu::common::{crc, PacketError};
 ///
 /// let msg: [u8; 5] = [0x01, 0x02, 0x03, 0x00, 0x00];
-/// let result: Result<(), crc::Error> = crc::validate(&msg);
+/// let result: Result<(), PacketError> = crc::validate(&msg);
 /// ```
 /// 
-pub fn validate(bytes: &[u8]) -> Result<(), Error> {
+pub fn validate(bytes: &[u8]) -> Result<(), PacketError> {
+    let len = bytes.len();
+
     // Input bytes must be greater or equal to 3.
-    if bytes.len() < 3 {
-        return Err(Error::TooShort(bytes.len()));
+    if len < 3 {
+        return Err(PacketError::TooShort(bytes.len()));
     }
 
     // Generate CRC bytes
-    let crc = gen_bytes(&bytes[..bytes.len() - 2]);
+    let crc = gen_bytes(&bytes[..(len - 2)]);
 
     // Validate
-    if crc != [bytes[bytes.len() - 2], bytes[bytes.len() - 1]] {
-        return Err(Error::CrcMismatch { expected: crc, found: [bytes[bytes.len() - 2], bytes[bytes.len() - 1]] });
+    if crc != [bytes[len - 2], bytes[len - 1]] {
+        return Err(PacketError::CrcMismatch {
+            expected: crc,
+            found: [bytes[len - 2], bytes[len - 1]]
+        });
     }
+    
     Ok(())
 }
-
-
-/// Modbus RTU checksum bytes validation error
-/// 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u8)]
-pub enum Error {
-    /// The input byte slice is too short to validate.
-    ///
-    /// The input must be at least 3 bytes:
-    /// - At least 1 byte of data
-    /// - 2 bytes of checksum (CRC-16)
-    ///
-    /// Contains the actual length of the input.
-    /// 
-    TooShort(usize),
-
-    /// The CRC bytes extracted from the input (last two bytes) do not match
-    /// the CRC computed from the preceding data.
-    ///
-    /// - `expected`: The CRC bytes computed locally (in little-endian byte order)
-    /// - `found`: The CRC bytes found in the input (in little-endian byte order)
-    /// 
-    CrcMismatch { expected: [u8; 2], found: [u8; 2] },
-}
-
-
-#[cfg(feature = "std")]
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Error::TooShort(len) => write!(f, "The input byte slice is too short to validate ({})", len),
-            Error::CrcMismatch { expected, found } => write!(f, "Checksum error (expected {:04X}, found {:04X})",
-                u16::from_le_bytes(*expected),
-                u16::from_be_bytes(*found)
-            ),
-        }
-    }
-}
-
-
-#[cfg(feature = "std")]
-impl std::error::Error for Error {}
