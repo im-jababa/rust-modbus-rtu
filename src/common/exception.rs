@@ -2,7 +2,7 @@
 #[repr(u8)]
 pub enum Exception {
     /// An undefined exception code not covered by this crate.
-    Unknown(u8),
+    Undefined(u8),
 
     /// The function code received is not supported by the device or is invalid in the current state.
     IllegalFunction = 0x01,
