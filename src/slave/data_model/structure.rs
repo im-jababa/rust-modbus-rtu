@@ -212,6 +212,35 @@ impl<const L: usize> DataStructure<L> {
         self.0[index]
     }
 
+    /// Returns the number of addresses stored in this data structure.
+    ///
+    /// This is equivalent to the compile-time constant length `L`.
+    /// 
+    /// ---
+    /// # Returns
+    /// Total count of valid(defined) addresses
+    /// 
+    /// ---
+    /// # Examples
+    /// ```
+    /// use modbus_rtu::slave::DataStructure;
+    /// 
+    /// const ADDRESSES: [u16; 4] = [
+    ///     0x0000,
+    ///     0x0001,
+    ///     0x1234,
+    ///     0x5678,
+    /// ];
+    /// 
+    /// const DATA_STRUCTURE: DataStructure<4> = DataStructure::new(ADDRESSES);
+    /// 
+    /// assert_eq!(ADDRESSES.len(), DATA_STRUCTURE.len());
+    /// ```
+    /// 
+    pub fn len(&self) -> usize {
+        L
+    }
+
     /// Validates that the address list is strictly increasing and unique.
     ///
     /// ---
