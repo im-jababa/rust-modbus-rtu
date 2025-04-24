@@ -237,7 +237,7 @@ impl<const L: usize> DataStructure<L> {
     /// assert_eq!(ADDRESSES.len(), DATA_STRUCTURE.len());
     /// ```
     /// 
-    pub fn len(&self) -> usize {
+    pub const fn len(&self) -> usize {
         L
     }
 
