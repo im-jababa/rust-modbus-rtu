@@ -157,6 +157,86 @@ impl<const L: usize, T: Copy> DataModel<L, T> {
         Some(self.values[index])
     }
 
+    /// Sets a value in the data model at the specified index.
+    ///
+    /// This function assumes the index is already validated and corresponds to a valid entry in the model.
+    ///
+    /// ---
+    /// # Args
+    /// - `index`: The index at which to set the value. This must be valid, as obtained from `get_index`.
+    /// - `value`: The value to be set at the specified index.
+    ///
+    /// ---
+    /// # Examples
+    /// ```
+    /// # use modbus_rtu::slave::{DataModel, DataStructure};
+    /// # 
+    /// # const DATA_STRUCTURE: DataStructure<4> = DataStructure::new([
+    /// #     0x0000,
+    /// #     0x0001,
+    /// #     0x1234,
+    /// #     0x5678,
+    /// # ]);
+    /// # 
+    /// # let mut data_model = DataModel::new(&DATA_STRUCTURE, [0; 4]);
+    /// # 
+    /// // This is find.
+    /// let i = data_model.get_index(0x0000);
+    /// data_model.set_value(i, 5);
+    /// 
+    /// // This is fine too.
+    /// if let Some(i) = data_model.find_index(0x0008) {
+    ///     data_model.set_value(i, 5);
+    /// }
+    /// 
+    /// // But this might panic.
+    /// data_model.set_value(3, 5);
+    /// ```
+    /// 
+    /// ---
+    /// # Panics
+    /// Panics if the index is out of bounds.
+    ///
+    pub fn set_value(&mut self, index: usize, value: T) {
+        self.values[index] = value;
+    }
+
+    /// Retrieves the internal index for a given address defined in the data structure.
+    ///
+    /// This is useful when you want to perform index-based operations on the values array.
+    ///
+    /// ---
+    /// # Args
+    /// - `address`: The address whose index should be retrieved. Must be present in the structure.
+    ///
+    /// ---
+    /// # Returns
+    /// The index corresponding to the given address.
+    ///
+    /// ---
+    /// # Panics
+    /// Panics at compile time if the address is not found in the structure.
+    ///
+    pub const fn get_index(&self, address: u16) -> usize {
+        self.structure.get(address)
+    }
+
+    /// Attempts to find the index for a given address, if it exists in the data structure.
+    ///
+    /// This method is safe to use with dynamic or externally provided addresses.
+    ///
+    /// ---
+    /// # Args
+    /// - `address`: The address to search for.
+    ///
+    /// ---
+    /// # Returns
+    /// `Some(index)` if the address is present, or `None` otherwise.
+    ///
+    pub fn find_index(&self, address: u16) -> Option<usize> {
+        self.structure.find(address)
+    }
+
     /// Checks whether the data model is empty.
     ///
     /// This returns `true` if the data model contains no entries, which occurs when its length `L` is zero.
