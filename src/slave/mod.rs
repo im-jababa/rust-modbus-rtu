@@ -56,7 +56,7 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
         &mut self.input_registers
     }
 
-    pub fn analyze_packet(&self, packet: &[u8]) -> Result<RequestForm<'a>, PacketError> {
+    pub fn analyze_packet(&self, packet: &[u8], word_buffer: &'a mut [u16]) -> Result<RequestForm<'a>, PacketError> {
         let len = packet.len();
 
         // Packet too short
@@ -72,36 +72,146 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
             return Err(PacketError::NotMyId(packet[0]));
         }
 
-        match packet[1] {
+        let fc  = packet[1];
+        match fc {
+            // Process read holding registers
             0x03 => {
+                // If the holding registers have zero capacity, the request is treated as not supported.
                 if self.holding_registers.is_empty() {
-                    return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction));
+                    return Err(PacketError::Exeption(fc, Exception::IllegalFunction));
                 }
-                todo!()
+
+                // Required length
+                if len < 8 {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+
+                let start_register: u16 = ((packet[2] as u16) << 8) | (packet[3] as u16);
+                let registers_count: u16 = ((packet[4] as u16) << 8) | (packet[5] as u16);
+
+                // Register address overflowed
+                let end_register: u16 = match start_register.checked_add(registers_count) {
+                    Some(v) => v,
+                    None => return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress)),
+                };
+
+                // All register addresses must be valid
+                for adr in start_register..=end_register {
+                    if let None = self.holding_registers.find_index(adr) {
+                        return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress));
+                    }
+                }
+
+                Ok(RequestForm::ReadHoldingRegisters { start_register, registers_count })
             },
+
+            // Process read input registers
             0x04 => {
+                // If the input registers have zero capacity, the request is treated as not supported.
                 if self.input_registers.is_empty() {
-                    return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction));
+                    return Err(PacketError::Exeption(fc, Exception::IllegalFunction));
                 }
-                todo!()
+
+                // Required length
+                if len < 8 {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+                
+                let start_register: u16 = ((packet[2] as u16) << 8) | (packet[3] as u16);
+                let registers_count: u16 = ((packet[4] as u16) << 8) | (packet[5] as u16);
+
+                // Register address overflowed
+                let end_register: u16 = match start_register.checked_add(registers_count) {
+                    Some(v) => v,
+                    None => return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress)),
+                };
+
+                // All register addresses must be valid
+                for adr in start_register..=end_register {
+                    if let None = self.input_registers.find_index(adr) {
+                        return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress));
+                    }
+                }
+
+                Ok(RequestForm::ReadInputRegisters { start_register, registers_count })
             },
+
+            // Process write single register
             0x06 => {
+                // If the holding registers have zero capacity, the request is treated as not supported.
                 if self.holding_registers.is_empty() {
-                    return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction));
+                    return Err(PacketError::Exeption(fc, Exception::IllegalFunction));
                 }
-                todo!()
+
+                // Required length
+                if len < 8 {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+                
+                let register_address: u16 = ((packet[2] as u16) << 8) | (packet[3] as u16);
+                let data_to_write: u16 = ((packet[4] as u16) << 8) | (packet[5] as u16);
+
+                // Register address must be valid
+                if let None = self.holding_registers.find_index(register_address) {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress));
+                }
+
+                Ok(RequestForm::WriteSingleRegister { register_address, data_to_write })
             },
+
+            // Process write multiple registers
             0x10 => {
+                // If the holding registers have zero capacity, the request is treated as not supported.
                 if self.holding_registers.is_empty() {
-                    return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction));
+                    return Err(PacketError::Exeption(fc, Exception::IllegalFunction));
                 }
-                todo!()
+                
+                // Minimum required length
+                if len < 9 {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+
+                let start_register: u16 = ((packet[2] as u16) << 8) | (packet[3] as u16);
+                let registers_count: u16 = ((packet[4] as u16) << 8) | (packet[5] as u16);
+                let bytes_count: u8 = packet[6];
+
+                // Required length
+                if len < 9 + bytes_count as usize {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+
+                // Bytes count must be double of the registers count
+                if bytes_count as u16 != registers_count.saturating_mul(2) {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+
+                // Register address overflowed
+                let end_register: u16 = match start_register.checked_add(registers_count) {
+                    Some(v) => v,
+                    None => return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress)),
+                };
+
+                // All register addresses must be valid
+                for adr in start_register..=end_register {
+                    if let None = self.holding_registers.find_index(adr) {
+                        return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress));
+                    }
+                }
+
+                // All data to write
+                for i in 0..registers_count as usize {
+                    word_buffer[i] = ((packet[7 + (i * 2) + 0] as u16) << 8) | (packet[7 + (i * 2) + 1] as u16);
+                }
+
+                Ok(RequestForm::WriteMultipleRegisters { start_register, datas_to_write: &word_buffer[..registers_count as usize] })
             },
+
+            // Process bypass packet
             #[cfg(feature="bypass")]
             0x45 => {
                 todo!()
             },
-            _ => return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction)),
+            _ => return Err(PacketError::Exeption(fc, Exception::IllegalFunction)),
         }
     }
 
