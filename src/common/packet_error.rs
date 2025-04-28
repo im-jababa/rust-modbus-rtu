@@ -7,7 +7,7 @@ pub enum PacketError {
     TooShort(usize),
     CrcMismatch { expected: [u8; 2], found: [u8; 2] },
     NotMyId(u8),
-    Exeption(Exception),
+    Exeption(u8, Exception),
 }
 
 

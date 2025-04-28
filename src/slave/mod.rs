@@ -75,25 +75,25 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
         match packet[1] {
             0x03 => {
                 if self.holding_registers.is_empty() {
-                    return Err(PacketError::Exeption(Exception::IllegalFunction));
+                    return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction));
                 }
                 todo!()
             },
             0x04 => {
                 if self.input_registers.is_empty() {
-                    return Err(PacketError::Exeption(Exception::IllegalFunction));
+                    return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction));
                 }
                 todo!()
             },
             0x06 => {
                 if self.holding_registers.is_empty() {
-                    return Err(PacketError::Exeption(Exception::IllegalFunction));
+                    return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction));
                 }
                 todo!()
             },
             0x10 => {
                 if self.holding_registers.is_empty() {
-                    return Err(PacketError::Exeption(Exception::IllegalFunction));
+                    return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction));
                 }
                 todo!()
             },
@@ -101,7 +101,7 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
             0x45 => {
                 todo!()
             },
-            _ => return Err(PacketError::Exeption(Exception::IllegalFunction)),
+            _ => return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction)),
         }
     }
 }
