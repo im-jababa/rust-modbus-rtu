@@ -28,3 +28,47 @@ pub enum Exception {
     /// The gateway received no response from the target device.
     GatewayTargetDeviceFailedToRespond = 0x0B,
 }
+
+
+impl From<Exception> for u8 {
+    fn from(value: Exception) -> Self {
+        match value {
+            Exception::Undefined(c) => c,
+            Exception::IllegalFunction => 0x01,
+            Exception::IllegalDataAddress => 0x02,
+            Exception::IllegalDataValue => 0x03,
+            Exception::DeviceFailure => 0x04,
+            Exception::Acknowledge => 0x05,
+            Exception::DeviceBusy => 0x06,
+            Exception::GatewayPathUnavailable => 0x0A,
+            Exception::GatewayTargetDeviceFailedToRespond => 0x0B,
+        }
+    }
+}
+
+
+impl From<&Exception> for u8 {
+    fn from(value: &Exception) -> Self {
+        match value {
+            Exception::Undefined(c) => *c,
+            Exception::IllegalFunction => 0x01,
+            Exception::IllegalDataAddress => 0x02,
+            Exception::IllegalDataValue => 0x03,
+            Exception::DeviceFailure => 0x04,
+            Exception::Acknowledge => 0x05,
+            Exception::DeviceBusy => 0x06,
+            Exception::GatewayPathUnavailable => 0x0A,
+            Exception::GatewayTargetDeviceFailedToRespond => 0x0B,
+        }
+    }
+}
+
+
+#[test]
+fn test() {
+    let code: u8 = Exception::IllegalFunction.into();
+    assert_eq!(code, 0x01);
+
+    let code: u8 = Exception::Undefined(0x16).into();
+    assert_eq!(code, 0x16);
+}

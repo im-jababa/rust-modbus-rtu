@@ -104,4 +104,19 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
             _ => return Err(PacketError::Exeption(packet[1], Exception::IllegalFunction)),
         }
     }
+
+    pub fn build_exception_response_packet(&self, fc: u8, exception: Exception) -> [u8; 5] {
+        let mut result: [u8; 5] = [
+            self.modbus_id,
+            fc | 0x80,
+            exception.into(),
+            0x00,
+            0x00,
+        ];
+
+        let crc_bytes = crc::gen_bytes(&result[..3]);
+        result[3..5].copy_from_slice(&crc_bytes);
+
+        result
+    }
 }
