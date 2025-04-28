@@ -95,12 +95,12 @@ impl<'a> Request<'a> {
                 // packet length without CRC bytes
                 6
             },
-            RequestForm::WriteMultipleRegisters { start_register, datas_to_write } => {
+            RequestForm::WriteMultipleRegisters { start_register, data_to_write } => {
                 // write start register address
                 buffer[2..4].copy_from_slice(&start_register.to_be_bytes());
 
                 // write registers count
-                let registers_count: u16 = datas_to_write.len() as u16;
+                let registers_count: u16 = data_to_write.len() as u16;
                 buffer[4..6].copy_from_slice(&registers_count.to_be_bytes());
 
                 // write bytes count
@@ -108,7 +108,7 @@ impl<'a> Request<'a> {
 
                 // write datas to write
                 for i in 0..registers_count as usize {
-                    buffer[(7 + (i * 2))..=(8 + (i * 2))].copy_from_slice(&datas_to_write[i].to_be_bytes());
+                    buffer[(7 + (i * 2))..=(8 + (i * 2))].copy_from_slice(&data_to_write[i].to_be_bytes());
                 }
 
                 7 + (registers_count as usize * 2)

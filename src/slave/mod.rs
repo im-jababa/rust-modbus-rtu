@@ -203,7 +203,7 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
                     word_buffer[i] = ((packet[7 + (i * 2) + 0] as u16) << 8) | (packet[7 + (i * 2) + 1] as u16);
                 }
 
-                Ok(RequestForm::WriteMultipleRegisters { start_register, datas_to_write: &word_buffer[..registers_count as usize] })
+                Ok(RequestForm::WriteMultipleRegisters { start_register, data_to_write: &word_buffer[..registers_count as usize] })
             },
 
             // Process bypass packet

@@ -28,9 +28,9 @@ pub enum RequestForm<'a> {
     /// Request format for writing multiple Holding Registers
     /// 
     /// - `start_register`: The starting register address
-    /// - `datas_to_wirte`: Slice of data values to write to consecutive registers
+    /// - `data_to_wirte`: Slice of data values to write to consecutive registers
     /// 
-    WriteMultipleRegisters { start_register: u16, datas_to_write: &'a [u16] },
+    WriteMultipleRegisters { start_register: u16, data_to_write: &'a [u16] },
 
     /// Request format for bypassing a packet to a downstream device
     #[cfg(feature="bypass")]
