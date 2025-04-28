@@ -89,8 +89,13 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
                 let start_register: u16 = ((packet[2] as u16) << 8) | (packet[3] as u16);
                 let registers_count: u16 = ((packet[4] as u16) << 8) | (packet[5] as u16);
 
+                // Registers count should not have be 0.
+                if registers_count == 0 {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+
                 // Register address overflowed
-                let end_register: u16 = match start_register.checked_add(registers_count) {
+                let end_register: u16 = match start_register.checked_add(registers_count - 1) {
                     Some(v) => v,
                     None => return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress)),
                 };
@@ -120,8 +125,13 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
                 let start_register: u16 = ((packet[2] as u16) << 8) | (packet[3] as u16);
                 let registers_count: u16 = ((packet[4] as u16) << 8) | (packet[5] as u16);
 
+                // Registers count should not have be 0.
+                if registers_count == 0 {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+
                 // Register address overflowed
-                let end_register: u16 = match start_register.checked_add(registers_count) {
+                let end_register: u16 = match start_register.checked_add(registers_count - 1) {
                     Some(v) => v,
                     None => return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress)),
                 };
@@ -185,8 +195,13 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
                     return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
                 }
 
+                // Registers count should not have be 0.
+                if registers_count == 0 {
+                    return Err(PacketError::Exeption(fc, Exception::IllegalDataValue));
+                }
+
                 // Register address overflowed
-                let end_register: u16 = match start_register.checked_add(registers_count) {
+                let end_register: u16 = match start_register.checked_add(registers_count - 1) {
                     Some(v) => v,
                     None => return Err(PacketError::Exeption(fc, Exception::IllegalDataAddress)),
                 };
