@@ -74,6 +74,28 @@ impl Baudrate {
     pub fn to_id(&self) -> u16 {
         *self as u16
     }
+
+    /// Calculates the packet end timeout in microseconds based on the baudrate.
+    ///
+    /// In Modbus RTU communication, this value defines the idle time required to consider a packet as ended. (3.5 char time)
+    ///
+    /// ---
+    /// # Returns
+    /// The idle time (in microseconds) required to delimit the end of a Modbus RTU packet at this baudrate.
+    ///
+    /// ---
+    /// # Examples
+    /// ```
+    /// use modbus_rtu::common::Baudrate;
+    ///
+    /// let baud = Baudrate::BR9600;
+    /// let packet_end_us: u32 = baud.packet_end_us();
+    /// ```
+    /// 
+    pub fn packet_end_us(&self) -> u32 {
+        let bps: u32 = self.into();
+        (35_000_000 + bps - 1) / bps
+    }
 }
 
 
@@ -99,6 +121,22 @@ impl TryFrom<u32> for Baudrate {
 
 impl From<Baudrate> for u32 {
     fn from(value: Baudrate) -> Self {
+        match value {
+            Baudrate::BR1200   =>   1_200,
+            Baudrate::BR2400   =>   2_400,
+            Baudrate::BR4800   =>   4_800,
+            Baudrate::BR9600   =>   9_600,
+            Baudrate::BR19200  =>  19_200,
+            Baudrate::BR38400  =>  38_400,
+            Baudrate::BR57600  =>  57_600,
+            Baudrate::BR115200 => 115_200,
+        }
+    }
+}
+
+
+impl From<&Baudrate> for u32 {
+    fn from(value: &Baudrate) -> Self {
         match value {
             Baudrate::BR1200   =>   1_200,
             Baudrate::BR2400   =>   2_400,
