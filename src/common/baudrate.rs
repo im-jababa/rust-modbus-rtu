@@ -3,6 +3,13 @@
 /// Each variant maps to an internal ID used within the protocol.
 /// The actual baudrate values (e.g., 9600, 115200) can be obtained via conversion.
 /// 
+/// ---
+/// # Supports
+/// - [`u32`] -> [`Baudrate`]
+/// - [`u64`] -> [`Baudrate`]
+/// - [`Baudrate`] -> [`u32`]
+/// - [`Baudrate`] -> [`u64`]
+/// 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy)]
 #[repr(u16)]
 pub enum Baudrate {
@@ -18,24 +25,31 @@ pub enum Baudrate {
 
 
 impl Baudrate {
-    /// Attempts to create a `Baudrate` from its internal ID.
+    /// Attempts to create a [`Baudrate`] from its internal ID.
     ///
     /// This is used when a baudrate needs to be reconstructed from a stored or transmitted ID.
     ///
     /// ---
     /// # Args
-    /// - `id`: The internal identifier corresponding to a `Baudrate`.
+    /// - `id`: The internal identifier corresponding to a [`Baudrate`].
     ///
     /// ---
     /// # Returns
-    /// `Some(Baudrate)` if the ID matches a known baudrate, otherwise `None`.
+    /// `Some(..)` if the ID matches a known baudrate, otherwise `None`.
     ///
     /// ---
     /// # Examples
     /// ```
     /// use modbus_rtu::common::Baudrate;
     ///
+    /// # assert_eq!(Baudrate::from_id(0), Some(Baudrate::BR1200));
+    /// # assert_eq!(Baudrate::from_id(1), Some(Baudrate::BR2400));
+    /// # assert_eq!(Baudrate::from_id(2), Some(Baudrate::BR4800));
     /// assert_eq!(Baudrate::from_id(3), Some(Baudrate::BR9600));
+    /// # assert_eq!(Baudrate::from_id(4), Some(Baudrate::BR19200));
+    /// # assert_eq!(Baudrate::from_id(5), Some(Baudrate::BR38400));
+    /// # assert_eq!(Baudrate::from_id(6), Some(Baudrate::BR57600));
+    /// # assert_eq!(Baudrate::from_id(7), Some(Baudrate::BR115200));
     /// assert_eq!(Baudrate::from_id(99), None);
     /// ```
     /// 
@@ -54,21 +68,27 @@ impl Baudrate {
         }
     }
 
-    /// Converts the `Baudrate` variant into its internal ID representation.
+    /// Converts the [`Baudrate`] variant into its internal ID representation.
     ///
-    /// This ID can be stored or transmitted and later converted back using `from_id`.
+    /// This ID can be stored or transmitted and later converted back using [`Baudrate::from_id`].
     ///
     /// ---
     /// # Returns
-    /// The internal `u16` ID associated with the baudrate.
+    /// The internal [`u16`] ID associated with the baudrate.
     ///
     /// ---
     /// # Examples
     /// ```
     /// use modbus_rtu::common::Baudrate;
     ///
-    /// let baud = Baudrate::BR19200;
-    /// assert_eq!(baud.to_id(), 4);
+    /// # assert_eq!(Baudrate::BR1200.to_id(), 0);
+    /// # assert_eq!(Baudrate::BR2400.to_id(), 1);
+    /// # assert_eq!(Baudrate::BR4800.to_id(), 2);
+    /// assert_eq!(Baudrate::BR9600.to_id(), 3);
+    /// # assert_eq!(Baudrate::BR19200.to_id(), 4);
+    /// # assert_eq!(Baudrate::BR38400.to_id(), 5);
+    /// # assert_eq!(Baudrate::BR57600.to_id(), 6);
+    /// # assert_eq!(Baudrate::BR115200.to_id(), 7);
     /// ```
     /// 
     pub fn to_id(&self) -> u16 {
@@ -89,16 +109,17 @@ impl Baudrate {
     /// use modbus_rtu::common::Baudrate;
     ///
     /// let baud = Baudrate::BR9600;
-    /// let packet_end_us: u32 = baud.packet_end_us();
+    /// let packet_end_us: u64 = baud.packet_end_us();
     /// ```
     /// 
-    pub fn packet_end_us(&self) -> u32 {
-        let bps: u32 = self.into();
+    pub fn packet_end_us(&self) -> u64 {
+        let bps: u64 = self.into();
         (35_000_000 + bps - 1) / bps
     }
 }
 
 
+// u32 -> Baudrate
 impl TryFrom<u32> for Baudrate {
     type Error = ();
 
@@ -119,6 +140,28 @@ impl TryFrom<u32> for Baudrate {
 }
 
 
+// u64 -> Baudrate
+impl TryFrom<u64> for Baudrate {
+    type Error = ();
+
+    fn try_from(value: u64) -> Result<Self, Self::Error> {
+        use Baudrate::*;
+        match value {
+              1_200 => Ok(BR1200),
+              2_400 => Ok(BR2400),
+              4_800 => Ok(BR4800),
+              9_600 => Ok(BR9600),
+             19_200 => Ok(BR19200),
+             38_400 => Ok(BR38400),
+             57_600 => Ok(BR57600),
+            115_200 => Ok(BR115200),
+            _ => Err(())
+        }
+    }
+}
+
+
+// Baudrate -> u32
 impl From<Baudrate> for u32 {
     fn from(value: Baudrate) -> Self {
         match value {
@@ -135,6 +178,7 @@ impl From<Baudrate> for u32 {
 }
 
 
+// &Baudrate -> u32
 impl From<&Baudrate> for u32 {
     fn from(value: &Baudrate) -> Self {
         match value {
@@ -147,5 +191,49 @@ impl From<&Baudrate> for u32 {
             Baudrate::BR57600  =>  57_600,
             Baudrate::BR115200 => 115_200,
         }
+    }
+}
+
+
+// Baudrate -> u64
+impl From<Baudrate> for u64 {
+    fn from(value: Baudrate) -> Self {
+        match value {
+            Baudrate::BR1200   =>   1_200,
+            Baudrate::BR2400   =>   2_400,
+            Baudrate::BR4800   =>   4_800,
+            Baudrate::BR9600   =>   9_600,
+            Baudrate::BR19200  =>  19_200,
+            Baudrate::BR38400  =>  38_400,
+            Baudrate::BR57600  =>  57_600,
+            Baudrate::BR115200 => 115_200,
+        }
+    }
+}
+
+
+// &Baudrate -> u64
+impl From<&Baudrate> for u64 {
+    fn from(value: &Baudrate) -> Self {
+        match value {
+            Baudrate::BR1200   =>   1_200,
+            Baudrate::BR2400   =>   2_400,
+            Baudrate::BR4800   =>   4_800,
+            Baudrate::BR9600   =>   9_600,
+            Baudrate::BR19200  =>  19_200,
+            Baudrate::BR38400  =>  38_400,
+            Baudrate::BR57600  =>  57_600,
+            Baudrate::BR115200 => 115_200,
+        }
+    }
+}
+
+
+// Display
+#[cfg(not(feature = "no_std"))]
+impl std::fmt::Display for Baudrate {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        let num: u32 = self.into();
+        write!(f, "Baudrate({})", num)
     }
 }

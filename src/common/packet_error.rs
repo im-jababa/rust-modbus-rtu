@@ -1,25 +1,18 @@
 use super::exception::Exception;
 
 
+/// Error types for received packet while analyzing it.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[repr(u8)]
 pub enum PacketError {
+    /// Packet is too short to analyze
     TooShort(usize),
+
+    /// Given CRC bytes are mismatched with the expected one
     CrcMismatch { expected: [u8; 2], found: [u8; 2] },
+
+    /// Packet is from unexpected ID
     NotMyId(u8),
+
+    /// Device reported exception code
     Exeption(u8, Exception),
 }
-
-
-#[cfg(feature = "std")]
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-
-        }
-    }
-}
-
-
-#[cfg(feature = "std")]
-impl std::error::Error for Error {}

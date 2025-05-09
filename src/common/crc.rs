@@ -14,7 +14,7 @@ use super::PacketError;
 /// ---
 /// # Examples
 /// ```rust
-/// use modbus_rtu::common::crc;
+/// use modbus_rtu::crc;
 ///
 /// let bytes: [u8; 4] = [0x00, 0x01, 0x02, 0x03];
 /// let crc_bytes: [u8; 2] = crc::gen_bytes(&bytes);
@@ -82,7 +82,7 @@ pub fn gen_bytes(bytes: &[u8]) -> [u8; 2] {
 /// ---
 /// # Examples
 /// ```rust
-/// use modbus_rtu::common::{crc, PacketError};
+/// use modbus_rtu::{crc, PacketError};
 ///
 /// let msg: [u8; 5] = [0x01, 0x02, 0x03, 0x00, 0x00];
 /// let result: Result<(), PacketError> = crc::validate(&msg);
