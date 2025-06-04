@@ -15,4 +15,7 @@ pub enum PacketError {
 
     /// Device reported exception code
     Exeption(u8, Exception),
+
+    /// Unexpected packet format
+    Invalid(&'static str),
 }
