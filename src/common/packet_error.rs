@@ -14,7 +14,7 @@ pub enum PacketError {
     NotMyId(u8),
 
     /// Device reported exception code
-    Exeption(u8, Exception),
+    Exeption(Exception),
 
     /// Unexpected packet format
     Invalid(&'static str),
