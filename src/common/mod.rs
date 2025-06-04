@@ -6,8 +6,8 @@ pub mod crc;
 mod baudrate;
 pub use baudrate::Baudrate;
 
-mod exception;
+pub mod exception;
 pub use exception::Exception;
 
-mod packet_error;
+pub mod packet_error;
 pub use packet_error::PacketError;

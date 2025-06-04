@@ -29,7 +29,7 @@ pub enum Exception {
     /// The device is busy processing a long-duration command. Try again later.
     DeviceBusy = 0x06,
 
-    /// 
+    /// Memory parity error.
     MemoryParityError = 0x08,
 
     /// The gateway could not establish a communication path. Check configuration or load.
