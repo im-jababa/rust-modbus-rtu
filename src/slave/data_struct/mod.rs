@@ -11,10 +11,10 @@
 /// ---
 /// # Examples
 /// ```
-/// use modbus_rtu::slave::DataStructure;
+/// use modbus_rtu::slave::DataStruct;
 /// 
 /// // Define data structure as const.
-/// const DATA_STRUCTURE: DataStructure<4> = DataStructure::new([
+/// const DATA_STRUCT: DataStruct<4> = DataStruct::new([
 ///     0x0000,
 ///     0x0001,
 ///     0x1234,
@@ -23,11 +23,11 @@
 /// ```
 /// 
 #[derive(Debug)]
-pub struct DataStructure<const L: usize>([u16; L]);
+pub struct DataStruct<const L: usize>([u16; L]);
 
 
-impl<const L: usize> DataStructure<L> {
-    /// Creates a new `DataStructure` after validating the input addresses.
+impl<const L: usize> DataStruct<L> {
+    /// Creates a new `DataStruct` after validating the input addresses.
     ///
     /// This function checks that the addresses are strictly ordered and unique at compile time.
     /// It will panic if the addresses are not ordered or contain duplicates.
@@ -38,14 +38,14 @@ impl<const L: usize> DataStructure<L> {
     ///
     /// ---
     /// # Returns
-    /// A new `DataStructure` instance if the validation passes.
+    /// A new `DataStruct` instance if the validation passes.
     /// 
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::slave::DataStructure;
+    /// use modbus_rtu::slave::DataStruct;
     /// 
-    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// const STRUCTURE: DataStruct<5> = DataStruct::new([
     ///     0x0000,
     ///     0x0001,
     ///     0x0002,
@@ -54,7 +54,7 @@ impl<const L: usize> DataStructure<L> {
     /// ]);
     /// ```
     /// 
-    pub const fn new(addresses: [u16; L]) -> DataStructure<L> {
+    pub const fn new(addresses: [u16; L]) -> DataStruct<L> {
         let _ = Self::validate(&addresses);
         Self(addresses)
     }
@@ -75,9 +75,9 @@ impl<const L: usize> DataStructure<L> {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::slave::DataStructure;
+    /// use modbus_rtu::slave::DataStruct;
     /// 
-    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// const STRUCTURE: DataStruct<5> = DataStruct::new([
     ///     0x0000,
     ///     0x0001,
     ///     0x0002,
@@ -90,8 +90,8 @@ impl<const L: usize> DataStructure<L> {
     /// 
     /// The code below will panic at complie time.
     /// ```should_panic
-    /// # use modbus_rtu::slave::DataStructure;
-    /// # const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// # use modbus_rtu::slave::DataStruct;
+    /// # const STRUCTURE: DataStruct<5> = DataStruct::new([
     /// #     0x0000,
     /// #     0x0001,
     /// #     0x0002,
@@ -142,9 +142,9 @@ impl<const L: usize> DataStructure<L> {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::slave::DataStructure;
+    /// use modbus_rtu::slave::DataStruct;
     /// 
-    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// const STRUCTURE: DataStruct<5> = DataStruct::new([
     ///     0x0000,
     ///     0x0001,
     ///     0x0002,
@@ -176,9 +176,9 @@ impl<const L: usize> DataStructure<L> {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::slave::DataStructure;
+    /// use modbus_rtu::slave::DataStruct;
     /// 
-    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// const STRUCTURE: DataStruct<5> = DataStruct::new([
     ///     0x0000,
     ///     0x0001,
     ///     0x0002,
@@ -191,8 +191,8 @@ impl<const L: usize> DataStructure<L> {
     /// 
     /// The code below will panic at compile time.
     /// ```should_panic
-    /// # use modbus_rtu::slave::DataStructure;
-    /// # const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// # use modbus_rtu::slave::DataStruct;
+    /// # const STRUCTURE: DataStruct<5> = DataStruct::new([
     /// #     0x0000,
     /// #     0x0001,
     /// #     0x0002,
@@ -223,7 +223,7 @@ impl<const L: usize> DataStructure<L> {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::slave::DataStructure;
+    /// use modbus_rtu::slave::DataStruct;
     /// 
     /// const ADDRESSES: [u16; 4] = [
     ///     0x0000,
@@ -232,7 +232,7 @@ impl<const L: usize> DataStructure<L> {
     ///     0x5678,
     /// ];
     /// 
-    /// const DATA_STRUCTURE: DataStructure<4> = DataStructure::new(ADDRESSES);
+    /// const DATA_STRUCTURE: DataStruct<4> = DataStruct::new(ADDRESSES);
     /// 
     /// assert_eq!(ADDRESSES.len(), DATA_STRUCTURE.len());
     /// ```
@@ -272,10 +272,10 @@ impl<const L: usize> DataStructure<L> {
 }
 
 
-impl DataStructure<0> {
+impl DataStruct<0> {
     /// An empty data structure.
     ///
     /// This is used to define a data model that does not contain any data.
     ///
-    pub const EMPTY: DataStructure<0> = DataStructure::new([]);
+    pub const EMPTY: DataStruct<0> = DataStruct::new([]);
 }

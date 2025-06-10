@@ -1,7 +1,8 @@
-use super::PacketError;
+#[cfg(test)]
+mod test;
 
 
-/// Generates CRC-16 Modbus checksum bytes in little-endian order.
+/// Generates CRC-16 Modbus checksum bytes.
 ///
 /// ---
 /// # Arguments
@@ -9,19 +10,22 @@ use super::PacketError;
 ///
 /// ---
 /// # Returns
-/// CRC-16 Modbus checksum as a 2-byte little-endian array.
+/// CRC-16 Modbus checksum as [`u16`].
 ///
 /// ---
 /// # Examples
-/// ```rust
+/// ```
 /// use modbus_rtu::crc;
 ///
-/// let bytes: [u8; 4] = [0x00, 0x01, 0x02, 0x03];
-/// let crc_bytes: [u8; 2] = crc::gen_bytes(&bytes);
+/// // Data without CRC bytes
+/// let mut bytes: [u8; 8] = [1, 2, 3, 4, 5, 6, 7, 8];
+/// 
+/// // Generate CRC bytes
+/// let crc_bytes: u16 = crc::generate_modbus16(&bytes);
 /// ```
 /// 
-pub fn gen_bytes(bytes: &[u8]) -> [u8; 2] {
-    // CRC16 modbus table
+pub fn generate_modbus16(bytes: &[u8]) -> u16 {
+    // CRC16-Modbus table
     const TABLE: [u16; 256] = [
         0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
         0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
@@ -60,12 +64,11 @@ pub fn gen_bytes(bytes: &[u8]) -> [u8; 2] {
     // Calculates CRC
     let mut crc: u16 = 0xFFFF;
     for &byte in bytes {
-        let index = (crc ^ byte as u16) & 0x00FF;
+        let index: u16 = (crc ^ byte as u16) & 0x00FF;
         crc = (crc >> 8) ^ TABLE[index as usize];
     }
 
-    // Return
-    crc.to_le_bytes()
+    crc
 }
 
 
@@ -77,34 +80,30 @@ pub fn gen_bytes(bytes: &[u8]) -> [u8; 2] {
 ///
 /// ---
 /// # Returns
-/// `Ok(())` if the checksum is valid, or an `Error` indicating why validation failed.
+/// [`Ok`] if the checksum is valid, or an [`Err`] indicating why validation failed.
 ///
 /// ---
 /// # Examples
-/// ```rust
+/// ```
 /// use modbus_rtu::{crc, PacketError};
 ///
 /// let msg: [u8; 5] = [0x01, 0x02, 0x03, 0x00, 0x00];
 /// let result: Result<(), PacketError> = crc::validate(&msg);
 /// ```
 /// 
-pub fn validate(bytes: &[u8]) -> Result<(), PacketError> {
-    let len = bytes.len();
+pub fn validate(bytes: &[u8]) -> Result<(), crate::PacketError> {
+    let len: usize = bytes.len();
 
-    // Input bytes must be greater or equal to 3.
+    // Requires 3 bytes at least (At least one data bytes + 2 CRC bytes)
     if len < 3 {
-        return Err(PacketError::TooShort(bytes.len()));
+        return Err(crate::PacketError::TooShort(len));
     }
 
-    // Generate CRC bytes
-    let crc = gen_bytes(&bytes[..(len - 2)]);
+    let expected: u16 = generate_modbus16(&bytes[..(len - 2)]);
+    let received: u16 = u16::from_le_bytes([bytes[len - 2], bytes[len - 1]]);
 
-    // Validate
-    if crc != [bytes[len - 2], bytes[len - 1]] {
-        return Err(PacketError::CrcMismatch {
-            expected: crc,
-            found: [bytes[len - 2], bytes[len - 1]]
-        });
+    if expected != received {
+        return Err(crate::PacketError::CrcMismatch { expected, received });
     }
     
     Ok(())

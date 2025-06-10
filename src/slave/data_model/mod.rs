@@ -1,4 +1,4 @@
-mod structure;      pub use structure::DataStructure;
+use crate::slave::DataStruct;
 
 
 /// A data model for accessing values stored at unique 16-bit addresses.
@@ -6,10 +6,10 @@ mod structure;      pub use structure::DataStructure;
 /// ---
 /// # Examples
 /// ```
-/// use modbus_rtu::slave::{DataModel, DataStructure};
+/// use modbus_rtu::slave::{DataModel, DataStruct};
 /// 
 /// // Define data structure first.
-/// const DATA_STRUCTURE: DataStructure<4> = DataStructure::new([
+/// const DATA_STRUCTURE: DataStruct<4> = DataStruct::new([
 ///     0x0001,
 ///     0x0002,
 ///     0x1234,
@@ -25,7 +25,7 @@ pub struct DataModel<const L: usize, T: Copy> {
     /// The data structure defined as a constant at compile time.
     /// The data model conforms to this structure.
     /// 
-    structure: &'static DataStructure<L>,
+    structure: &'static DataStruct<L>,
 
     /// The list of values being stored.
     /// It is stored in the same form as the data structure.
@@ -48,9 +48,9 @@ impl<const L: usize, T: Copy> DataModel<L, T> {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::slave::{DataModel, DataStructure};
+    /// use modbus_rtu::slave::{DataModel, DataStruct};
     /// 
-    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// const STRUCTURE: DataStruct<5> = DataStruct::new([
     ///     0x0000,
     ///     0x0001,
     ///     0x0002,
@@ -61,7 +61,7 @@ impl<const L: usize, T: Copy> DataModel<L, T> {
     /// let data_model = DataModel::new(&STRUCTURE, [0; 5]);
     /// ```
     /// 
-    pub fn new(structure: &'static DataStructure<L>, initial_values: [T; L]) -> DataModel<L, T> {
+    pub fn new(structure: &'static DataStruct<L>, initial_values: [T; L]) -> DataModel<L, T> {
         Self { structure, values: initial_values }
     }
 
@@ -81,9 +81,9 @@ impl<const L: usize, T: Copy> DataModel<L, T> {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::slave::{DataModel, DataStructure};
+    /// use modbus_rtu::slave::{DataModel, DataStruct};
     /// 
-    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// const STRUCTURE: DataStruct<5> = DataStruct::new([
     ///     0x0000,
     ///     0x0001,
     ///     0x0002,
@@ -98,8 +98,8 @@ impl<const L: usize, T: Copy> DataModel<L, T> {
     /// 
     /// The code below will panic at compile time.
     /// ```should_panic
-    /// # use modbus_rtu::slave::{DataModel, DataStructure};
-    /// # const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// # use modbus_rtu::slave::{DataModel, DataStruct};
+    /// # const STRUCTURE: DataStruct<5> = DataStruct::new([
     /// #     0x0000,
     /// #     0x0001,
     /// #     0x0002,
@@ -136,9 +136,9 @@ impl<const L: usize, T: Copy> DataModel<L, T> {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::slave::{DataModel, DataStructure};
+    /// use modbus_rtu::slave::{DataModel, DataStruct};
     ///
-    /// const STRUCTURE: DataStructure<5> = DataStructure::new([
+    /// const STRUCTURE: DataStruct<5> = DataStruct::new([
     ///     0x0000,
     ///     0x0001,
     ///     0x0002,
@@ -169,9 +169,9 @@ impl<const L: usize, T: Copy> DataModel<L, T> {
     /// ---
     /// # Examples
     /// ```
-    /// # use modbus_rtu::slave::{DataModel, DataStructure};
+    /// # use modbus_rtu::slave::{DataModel, DataStruct};
     /// # 
-    /// # const DATA_STRUCTURE: DataStructure<4> = DataStructure::new([
+    /// # const DATA_STRUCTURE: DataStruct<4> = DataStruct::new([
     /// #     0x0000,
     /// #     0x0001,
     /// #     0x1234,
@@ -282,6 +282,6 @@ impl<T: Copy> DataModel<0, T> {
     /// ```
     ///
     pub fn empty() -> DataModel<0, T> {
-        DataModel { structure: &DataStructure::EMPTY, values: [] }
+        DataModel { structure: &DataStruct::EMPTY, values: [] }
     }
 }

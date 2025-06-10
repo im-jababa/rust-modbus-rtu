@@ -1,3 +1,7 @@
+#[cfg(test)]
+mod test;
+
+
 /// Represents supported baudrates for Modbus communication.
 ///
 /// Each variant maps to an internal ID used within the protocol.
@@ -35,22 +39,14 @@ impl Baudrate {
     ///
     /// ---
     /// # Returns
-    /// `Some(..)` if the ID matches a known baudrate, otherwise `None`.
+    /// [`Some`] if the ID matches a known baudrate, otherwise [`None`].
     ///
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::common::Baudrate;
+    /// use modbus_rtu::Baudrate;
     ///
-    /// # assert_eq!(Baudrate::from_id(0), Some(Baudrate::BR1200));
-    /// # assert_eq!(Baudrate::from_id(1), Some(Baudrate::BR2400));
-    /// # assert_eq!(Baudrate::from_id(2), Some(Baudrate::BR4800));
-    /// assert_eq!(Baudrate::from_id(3), Some(Baudrate::BR9600));
-    /// # assert_eq!(Baudrate::from_id(4), Some(Baudrate::BR19200));
-    /// # assert_eq!(Baudrate::from_id(5), Some(Baudrate::BR38400));
-    /// # assert_eq!(Baudrate::from_id(6), Some(Baudrate::BR57600));
-    /// # assert_eq!(Baudrate::from_id(7), Some(Baudrate::BR115200));
-    /// assert_eq!(Baudrate::from_id(99), None);
+    /// let baudrate: Baudrate = Baudrate::from_id(3).unwrap();
     /// ```
     /// 
     pub fn from_id(id: u16) -> Option<Baudrate> {
@@ -79,25 +75,18 @@ impl Baudrate {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::common::Baudrate;
+    /// use modbus_rtu::Baudrate;
     ///
-    /// # assert_eq!(Baudrate::BR1200.to_id(), 0);
-    /// # assert_eq!(Baudrate::BR2400.to_id(), 1);
-    /// # assert_eq!(Baudrate::BR4800.to_id(), 2);
-    /// assert_eq!(Baudrate::BR9600.to_id(), 3);
-    /// # assert_eq!(Baudrate::BR19200.to_id(), 4);
-    /// # assert_eq!(Baudrate::BR38400.to_id(), 5);
-    /// # assert_eq!(Baudrate::BR57600.to_id(), 6);
-    /// # assert_eq!(Baudrate::BR115200.to_id(), 7);
+    /// let baudrate_id: u16 = Baudrate::BR9600.to_id();
     /// ```
     /// 
-    pub fn to_id(&self) -> u16 {
+    pub const fn to_id(&self) -> u16 {
         *self as u16
     }
 
     /// Calculates the packet end timeout in microseconds based on the baudrate.
     ///
-    /// In Modbus RTU communication, this value defines the idle time required to consider a packet as ended. (3.5 char time)
+    /// In Modbus RTU communication, this value defines the idle time required to consider a packet as ended. (3.5 char time in 8N1)
     ///
     /// ---
     /// # Returns
@@ -106,15 +95,34 @@ impl Baudrate {
     /// ---
     /// # Examples
     /// ```
-    /// use modbus_rtu::common::Baudrate;
+    /// use modbus_rtu::Baudrate;
     ///
-    /// let baud = Baudrate::BR9600;
-    /// let packet_end_us: u64 = baud.packet_end_us();
+    /// let baudrate = Baudrate::BR9600;
+    /// let packet_end_us: u64 = baudrate.packet_end_us();
     /// ```
     /// 
-    pub fn packet_end_us(&self) -> u64 {
-        let bps: u64 = self.into();
+    pub const fn packet_end_us(&self) -> u64 {
+        let bps: u64 = self.to_u32() as u64;
         (35_000_000 + bps - 1) / bps
+    }
+
+    /// [`Baudrate`] : [`u32`] map
+    /// 
+    /// ---
+    /// # Returns
+    /// [`u32`] value corresponding to [`Baudrate`]
+    /// 
+    const fn to_u32(&self) -> u32 {
+        match self {
+            Baudrate::BR1200   =>   1_200,
+            Baudrate::BR2400   =>   2_400,
+            Baudrate::BR4800   =>   4_800,
+            Baudrate::BR9600   =>   9_600,
+            Baudrate::BR19200  =>  19_200,
+            Baudrate::BR38400  =>  38_400,
+            Baudrate::BR57600  =>  57_600,
+            Baudrate::BR115200 => 115_200,
+        }
     }
 }
 
@@ -164,16 +172,7 @@ impl TryFrom<u64> for Baudrate {
 // Baudrate -> u32
 impl From<Baudrate> for u32 {
     fn from(value: Baudrate) -> Self {
-        match value {
-            Baudrate::BR1200   =>   1_200,
-            Baudrate::BR2400   =>   2_400,
-            Baudrate::BR4800   =>   4_800,
-            Baudrate::BR9600   =>   9_600,
-            Baudrate::BR19200  =>  19_200,
-            Baudrate::BR38400  =>  38_400,
-            Baudrate::BR57600  =>  57_600,
-            Baudrate::BR115200 => 115_200,
-        }
+        value.to_u32()
     }
 }
 
@@ -181,16 +180,7 @@ impl From<Baudrate> for u32 {
 // &Baudrate -> u32
 impl From<&Baudrate> for u32 {
     fn from(value: &Baudrate) -> Self {
-        match value {
-            Baudrate::BR1200   =>   1_200,
-            Baudrate::BR2400   =>   2_400,
-            Baudrate::BR4800   =>   4_800,
-            Baudrate::BR9600   =>   9_600,
-            Baudrate::BR19200  =>  19_200,
-            Baudrate::BR38400  =>  38_400,
-            Baudrate::BR57600  =>  57_600,
-            Baudrate::BR115200 => 115_200,
-        }
+        value.to_u32()
     }
 }
 
@@ -198,16 +188,7 @@ impl From<&Baudrate> for u32 {
 // Baudrate -> u64
 impl From<Baudrate> for u64 {
     fn from(value: Baudrate) -> Self {
-        match value {
-            Baudrate::BR1200   =>   1_200,
-            Baudrate::BR2400   =>   2_400,
-            Baudrate::BR4800   =>   4_800,
-            Baudrate::BR9600   =>   9_600,
-            Baudrate::BR19200  =>  19_200,
-            Baudrate::BR38400  =>  38_400,
-            Baudrate::BR57600  =>  57_600,
-            Baudrate::BR115200 => 115_200,
-        }
+        value.to_u32() as u64
     }
 }
 
@@ -215,16 +196,7 @@ impl From<Baudrate> for u64 {
 // &Baudrate -> u64
 impl From<&Baudrate> for u64 {
     fn from(value: &Baudrate) -> Self {
-        match value {
-            Baudrate::BR1200   =>   1_200,
-            Baudrate::BR2400   =>   2_400,
-            Baudrate::BR4800   =>   4_800,
-            Baudrate::BR9600   =>   9_600,
-            Baudrate::BR19200  =>  19_200,
-            Baudrate::BR38400  =>  38_400,
-            Baudrate::BR57600  =>  57_600,
-            Baudrate::BR115200 => 115_200,
-        }
+        value.to_u32() as u64
     }
 }
 

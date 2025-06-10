@@ -1,4 +1,8 @@
-mod data_model;     pub use data_model::{DataModel, DataStructure};
+mod data_model;
+mod data_struct;
+
+pub use data_model::DataModel;
+pub use data_struct::DataStruct;
 
 use crate::common::{crc, Exception};
 
@@ -65,8 +69,8 @@ impl<'a, const L1: usize, const L2: usize> ModbusSlave<L1, L2> {
             0x00,
         ];
 
-        let crc_bytes = crc::gen_bytes(&result[..3]);
-        result[3..5].copy_from_slice(&crc_bytes);
+        let crc_bytes = crc::generate_modbus16(&result[..3]);
+        // result[3..5].copy_from_slice(&crc_bytes);
 
         result
     }
