@@ -1,18 +1,11 @@
 [package]
 name = "modbus-rtu"
 version = "0.2.15"
-edition = "2021"
+edition = "2024"
 authors = ["Park JiSoo <cherryjeesoo@gmail.com>"]
 description = "Standard Modbus RTU protocols"
 license = "MIT"
 
-
-[dependencies]
-
-
 [features]
-default = ["slave", "no_std"]
-
-master = []
-slave = []
-no_std = []
+unlimited_packet_size = []
+enforce_broadcast = []

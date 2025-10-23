@@ -1,31 +1,35 @@
-#[cfg(test)]
-mod test;
-
-
-/// Generates CRC-16 Modbus checksum bytes.
+/// Generates the CRC-16 Modbus checksum for the provided byte slice.
 ///
 /// ---
 /// # Arguments
-/// - `bytes`: The input data to calculate the CRC-16 checksum for.
+/// - `bytes`: Input data that should be checksummed.
 ///
 /// ---
 /// # Returns
-/// CRC-16 Modbus checksum as [`u16`].
+/// The computed CRC value. See the example for how to append the checksum to a
+/// Modbus RTU packet.
 ///
 /// ---
 /// # Examples
-/// ```
-/// use modbus_rtu::crc;
+/// ```rust
+/// use ds_modbus_rtu::crc;
 ///
-/// // Data without CRC bytes
-/// let mut bytes: [u8; 8] = [1, 2, 3, 4, 5, 6, 7, 8];
-/// 
-/// // Generate CRC bytes
-/// let crc_bytes: u16 = crc::generate_modbus16(&bytes);
+/// // Request to read four Input Registers at address 0x0000 on device 0x01.
+/// // The CRC bytes are not yet populated.
+/// let mut bytes: [u8; 8] = [0x01, 0x04, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00];
+///
+/// // Generate the CRC-16 Modbus checksum.
+/// let checksum: [u8; 2] = crc::generate(&bytes[0..6]).to_le_bytes();
+///
+/// // Append the checksum.
+/// bytes[6..].copy_from_slice(&checksum);
+///
+/// // Completed packet.
+/// assert_eq!(bytes, [0x01, 0x04, 0x00, 0x00, 0x00, 0x04, 0xF1, 0xC9]);
 /// ```
 /// 
-pub fn generate_modbus16(bytes: &[u8]) -> u16 {
-    // CRC16-Modbus table
+pub(crate) fn generate(bytes: &[u8]) -> u16 {
+    // CRC16-Modbus lookup table.
     const TABLE: [u16; 256] = [
         0x0000, 0xC0C1, 0xC181, 0x0140, 0xC301, 0x03C0, 0x0280, 0xC241,
         0xC601, 0x06C0, 0x0780, 0xC741, 0x0500, 0xC5C1, 0xC481, 0x0440,
@@ -61,7 +65,6 @@ pub fn generate_modbus16(bytes: &[u8]) -> u16 {
         0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040,
     ];
 
-    // Calculates CRC
     let mut crc: u16 = 0xFFFF;
     for &byte in bytes {
         let index: u16 = (crc ^ byte as u16) & 0x00FF;
@@ -72,39 +75,42 @@ pub fn generate_modbus16(bytes: &[u8]) -> u16 {
 }
 
 
-/// Validates the CRC-16 checksum at the end of a Modbus RTU message.
+/// Validates a packet that includes a CRC-16 Modbus checksum.
 ///
 /// ---
 /// # Arguments
-/// - `bytes`: A byte slice including both data and the trailing CRC-16 (2 bytes in little-endian order).
+/// - `bytes`: The data whose checksum should be verified.
 ///
 /// ---
 /// # Returns
-/// [`Ok`] if the checksum is valid, or an [`Err`] indicating why validation failed.
+/// Returns [`Ok`] when the checksum matches, or [`Err`] when validation fails.
 ///
 /// ---
 /// # Examples
-/// ```
-/// use modbus_rtu::{crc, PacketError};
+/// ```rust
+/// use ds_modbus_rtu::crc;
 ///
-/// let msg: [u8; 5] = [0x01, 0x02, 0x03, 0x00, 0x00];
-/// let result: Result<(), PacketError> = crc::validate(&msg);
+/// // Received packet.
+/// let packet: [u8; 8] = [0x01, 0x04, 0x00, 0x00, 0x00, 0x04, 0xF1, 0xC9];
+///
+/// // Verify the checksum.
+/// assert!(crc::validate(&packet).is_ok());
 /// ```
 /// 
-pub fn validate(bytes: &[u8]) -> Result<(), crate::PacketError> {
+pub(crate) fn validate(bytes: &[u8]) -> Result<(), crate::error::ResponsePacketError> {
+    // Incoming data must contain at least two bytes.
     let len: usize = bytes.len();
-
-    // Requires 3 bytes at least (At least one data bytes + 2 CRC bytes)
-    if len < 3 {
-        return Err(crate::PacketError::TooShort(len));
+    if len < 2 {
+        return Err(crate::error::ResponsePacketError::TooShort(len));
     }
 
-    let expected: u16 = generate_modbus16(&bytes[..(len - 2)]);
+    let expected: u16 = generate(&bytes[0..(len - 2)]);
     let received: u16 = u16::from_le_bytes([bytes[len - 2], bytes[len - 1]]);
 
-    if expected != received {
-        return Err(crate::PacketError::CrcMismatch { expected, received });
+    // Fail when the received checksum differs from the computed value.
+    if received != expected {
+        return Err(crate::error::ResponsePacketError::CRCMismatch { expected, received });
     }
-    
+
     Ok(())
 }

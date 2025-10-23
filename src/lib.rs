@@ -1,9 +1,18 @@
-#![cfg_attr(feature = "no_std", no_std)]
+pub(crate) mod crc;
 
-// Common features for both master device and slave device
-mod common;
-pub use common::*;
+pub mod error;
 
-/// Slave device relative features
-#[cfg(feature = "slave")]
-pub mod slave;
+mod exception;
+pub use exception::*;
+
+mod function;
+pub use function::Function;
+
+mod function_kind;
+pub use function_kind::FunctionKind;
+
+mod request;
+pub use request::*;
+
+mod response;
+pub use response::*;

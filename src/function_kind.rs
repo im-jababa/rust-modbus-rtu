@@ -35,6 +35,7 @@ pub enum FunctionKind {
 impl FunctionKind {
     /// Returns the Modbus RTU function code represented by this [`FunctionKind`].
     ///
+    /// ---
     /// # Examples
     /// ```rust
     /// use modbus_rtu::FunctionKind;
@@ -43,7 +44,7 @@ impl FunctionKind {
     /// assert_eq!(code, 0x03);
     /// ```
     /// 
-    pub fn as_code(&self) -> u8 {
+    pub const fn as_code(&self) -> u8 {
         *self as u8
     }
 
@@ -52,6 +53,7 @@ impl FunctionKind {
     /// Returns [`Some`] when the code is supported by this crate; otherwise
     /// returns [`None`].
     ///
+    /// ---
     /// # Examples
     /// ```rust
     /// use modbus_rtu::FunctionKind;
