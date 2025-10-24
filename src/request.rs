@@ -21,8 +21,12 @@ impl<'a> Request<'a> {
     /// assert_eq!(request.modbus_id(), 0x01);
     /// assert_eq!(request.timeout(), std::time::Duration::from_millis(200));
     /// ```
-    /// 
-    pub const fn new(modbus_id: u8, function: &'a crate::Function, timeout: std::time::Duration) -> Self {
+    ///
+    pub const fn new(
+        modbus_id: u8,
+        function: &'a crate::Function,
+        timeout: std::time::Duration,
+    ) -> Self {
         Self {
             modbus_id,
             function: function,
@@ -81,12 +85,18 @@ impl<'a> Request<'a> {
     ///
     /// assert_eq!(&frame[..], &[0x11, 0x06, 0x00, 0x10, 0xAB, 0xCD, 0x34, 0x3A]);
     /// ```
-    /// 
+    ///
     pub fn to_bytes(&self) -> Result<Box<[u8]>, crate::error::RequestPacketError> {
         use crate::FunctionKind::*;
-        if self.is_broadcasting() 
-        && [ReadCoils, ReadDiscreteInputs, ReadHoldingRegisters, ReadInputRegisters]
-        .contains(&self.function().kind()) {
+        if self.is_broadcasting()
+            && [
+                ReadCoils,
+                ReadDiscreteInputs,
+                ReadHoldingRegisters,
+                ReadInputRegisters,
+            ]
+            .contains(&self.function().kind())
+        {
             return Err(crate::error::RequestPacketError::CannotBroadcast);
         }
         let mut buf: Vec<u8> = Vec::new();

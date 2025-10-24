@@ -1,8 +1,8 @@
 /// ## FunctionKind
-/// 
+///
 /// `FunctionKind` represents the function codes defined by the Modbus RTU standard protocol.
 /// Functions not listed here are not supported.
-/// 
+///
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
 pub enum FunctionKind {
@@ -31,7 +31,6 @@ pub enum FunctionKind {
     WriteMultipleRegisters = 0x10,
 }
 
-
 impl FunctionKind {
     /// Returns the Modbus RTU function code represented by this [`FunctionKind`].
     ///
@@ -43,7 +42,7 @@ impl FunctionKind {
     /// let code = FunctionKind::ReadHoldingRegisters.as_code();
     /// assert_eq!(code, 0x03);
     /// ```
-    /// 
+    ///
     pub const fn as_code(&self) -> u8 {
         *self as u8
     }
@@ -64,7 +63,7 @@ impl FunctionKind {
     /// let unsupported = FunctionKind::from_code(0x7F);
     /// assert_eq!(unsupported, None);
     /// ```
-    /// 
+    ///
     pub fn from_code(code: u8) -> Option<Self> {
         match code {
             0x01 => Some(Self::ReadCoils),
@@ -75,23 +74,26 @@ impl FunctionKind {
             0x06 => Some(Self::WriteSingleRegister),
             0x0F => Some(Self::WriteMultipleCoils),
             0x10 => Some(Self::WriteMultipleRegisters),
-            _    => None,
+            _ => None,
         }
     }
 }
 
-
 impl std::fmt::Display for FunctionKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Self::ReadCoils => "Read Coils",
-            Self::ReadDiscreteInputs => "Read Discrete Inputs",
-            Self::ReadHoldingRegisters => "Read Holding Registers",
-            Self::ReadInputRegisters => "Read Input Registers",
-            Self::WriteSingleCoil => "Write Single Coil",
-            Self::WriteSingleRegister => "Write Single Register",
-            Self::WriteMultipleCoils => "Write Multiple Coils",
-            Self::WriteMultipleRegisters => "Write Multiple Registers",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::ReadCoils => "Read Coils",
+                Self::ReadDiscreteInputs => "Read Discrete Inputs",
+                Self::ReadHoldingRegisters => "Read Holding Registers",
+                Self::ReadInputRegisters => "Read Input Registers",
+                Self::WriteSingleCoil => "Write Single Coil",
+                Self::WriteSingleRegister => "Write Single Register",
+                Self::WriteMultipleCoils => "Write Multiple Coils",
+                Self::WriteMultipleRegisters => "Write Multiple Registers",
+            }
+        )
     }
 }

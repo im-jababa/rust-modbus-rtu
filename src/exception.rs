@@ -49,7 +49,6 @@ pub enum Exception {
     GatewayTargetDeviceFailedToRespond = 0x0B,
 }
 
-
 impl Exception {
     /// Returns the Modbus exception code associated with this variant.
     ///
@@ -61,7 +60,7 @@ impl Exception {
     /// assert_eq!(Exception::IllegalDataAddress.as_code(), 0x02);
     /// assert_eq!(Exception::DeviceBusy.as_code(), 0x06);
     /// ```
-    /// 
+    ///
     pub const fn as_code(&self) -> u8 {
         match self {
             Exception::Undefined(code) => *code,
@@ -87,7 +86,7 @@ impl Exception {
     /// assert_eq!(Exception::from_code(0x05), Exception::Acknowledge);
     /// assert_eq!(Exception::from_code(0xFF), Exception::Undefined(0xFF));
     /// ```
-    /// 
+    ///
     pub fn from_code(code: u8) -> Self {
         match code {
             0x01 => Self::IllegalFunction,

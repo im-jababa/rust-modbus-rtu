@@ -15,7 +15,6 @@ pub enum Response {
     Exception(crate::Exception),
 }
 
-
 impl Response {
     /// Decodes a Modbus RTU response frame into a [`Response`] value.
     ///
@@ -47,8 +46,11 @@ impl Response {
     ///     _ => panic!("unexpected response variant"),
     /// }
     /// ```
-    /// 
-    pub fn from_bytes(request: &crate::Request, bytes: &[u8]) -> Result<Self, crate::error::ResponsePacketError> {
+    ///
+    pub fn from_bytes(
+        request: &crate::Request,
+        bytes: &[u8],
+    ) -> Result<Self, crate::error::ResponsePacketError> {
         // minimum length check
         let len = bytes.len();
         if len < 5 {
@@ -67,7 +69,9 @@ impl Response {
 
         // modbus id check
         if bytes[0] != request.modbus_id() {
-            return Err(crate::error::ResponsePacketError::UnexpectedResponder(bytes[0]));
+            return Err(crate::error::ResponsePacketError::UnexpectedResponder(
+                bytes[0],
+            ));
         }
 
         // function code check
@@ -84,12 +88,11 @@ impl Response {
 
         // analyze
         match function_kind {
-            crate::FunctionKind::ReadCoils |
-            crate::FunctionKind::ReadDiscreteInputs => {
+            crate::FunctionKind::ReadCoils | crate::FunctionKind::ReadDiscreteInputs => {
                 let byte_count = packet[0];
                 let quantity = match request.function() {
-                    crate::Function::ReadCoils { quantity, .. } |
-                    crate::Function::ReadDiscreteInputs { quantity, .. } => *quantity,
+                    crate::Function::ReadCoils { quantity, .. }
+                    | crate::Function::ReadDiscreteInputs { quantity, .. } => *quantity,
                     _ => unreachable!(),
                 };
                 if byte_count < (quantity as u8 + 7) / 8 {
@@ -109,13 +112,12 @@ impl Response {
                     }
                 }
                 Ok(Self::Status(list.into_boxed_slice()))
-            },
-            crate::FunctionKind::ReadHoldingRegisters |
-            crate::FunctionKind::ReadInputRegisters => {
+            }
+            crate::FunctionKind::ReadHoldingRegisters | crate::FunctionKind::ReadInputRegisters => {
                 let byte_count = packet[0];
                 let quantity = match request.function() {
-                    crate::Function::ReadHoldingRegisters { quantity, .. } |
-                    crate::Function::ReadInputRegisters { quantity, .. } => *quantity,
+                    crate::Function::ReadHoldingRegisters { quantity, .. }
+                    | crate::Function::ReadInputRegisters { quantity, .. } => *quantity,
                     _ => unreachable!(),
                 };
                 if byte_count < quantity as u8 * 2 {
@@ -132,46 +134,48 @@ impl Response {
                     list.push(value);
                 }
                 Ok(Self::Value(list.into_boxed_slice()))
-            },
-            crate::FunctionKind::WriteSingleCoil |
-            crate::FunctionKind::WriteSingleRegister => {
+            }
+            crate::FunctionKind::WriteSingleCoil | crate::FunctionKind::WriteSingleRegister => {
                 if packet.len() != 4 {
                     return Err(crate::error::ResponsePacketError::InvalidFormat);
                 }
                 let (req_address, req_value) = match request.function() {
-                    crate::Function::WriteSingleCoil { address, value } => (
-                        *address,
-                        if *value == true { 0xFF00 } else { 0x0000 }
-                    ),
+                    crate::Function::WriteSingleCoil { address, value } => {
+                        (*address, if *value == true { 0xFF00 } else { 0x0000 })
+                    }
                     crate::Function::WriteSingleRegister { address, value } => (*address, *value),
                     _ => unreachable!(),
                 };
                 let res_address = u16::from_be_bytes([packet[0], packet[1]]);
                 let res_value = u16::from_be_bytes([packet[2], packet[3]]);
-                if req_address != res_address
-                || req_value != res_value {
+                if req_address != res_address || req_value != res_value {
                     return Err(crate::error::ResponsePacketError::InvalidFormat);
                 }
                 Ok(Self::Success)
-            },
-            crate::FunctionKind::WriteMultipleCoils |
-            crate::FunctionKind::WriteMultipleRegisters => {
+            }
+            crate::FunctionKind::WriteMultipleCoils
+            | crate::FunctionKind::WriteMultipleRegisters => {
                 if packet.len() != 4 {
                     return Err(crate::error::ResponsePacketError::InvalidFormat);
                 }
                 let (req_address, req_quantity) = match request.function() {
-                    crate::Function::WriteMultipleCoils { starting_address, value } => (*starting_address, value.len() as u16),
-                    crate::Function::WriteMultipleRegisters { starting_address, value } => (*starting_address, value.len() as u16),
+                    crate::Function::WriteMultipleCoils {
+                        starting_address,
+                        value,
+                    } => (*starting_address, value.len() as u16),
+                    crate::Function::WriteMultipleRegisters {
+                        starting_address,
+                        value,
+                    } => (*starting_address, value.len() as u16),
                     _ => unreachable!(),
                 };
                 let res_address = u16::from_be_bytes([packet[0], packet[1]]);
                 let res_quantity = u16::from_be_bytes([packet[2], packet[3]]);
-                if req_address != res_address
-                || req_quantity != res_quantity {
+                if req_address != res_address || req_quantity != res_quantity {
                     return Err(crate::error::ResponsePacketError::InvalidFormat);
                 }
                 Ok(Self::Success)
-            },
+            }
         }
     }
 
@@ -190,12 +194,10 @@ impl Response {
     /// assert!(Response::Exception(Exception::Acknowledge).is_success());
     /// assert!(!Response::Exception(Exception::IllegalFunction).is_success());
     /// ```
-    /// 
+    ///
     pub fn is_success(&self) -> bool {
         match self {
-            Response::Status(_) |
-            Response::Value(_) |
-            Response::Success => true,
+            Response::Status(_) | Response::Value(_) | Response::Success => true,
             Response::Exception(exception) => *exception == crate::Exception::Acknowledge,
         }
     }

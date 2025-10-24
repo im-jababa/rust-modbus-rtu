@@ -3,17 +3,17 @@
 pub enum RequestPacketError {
     /// This error is raised when the function tries to produce a request packet
     /// that exceeds the Modbus RTU protocol's maximum packet length of 256 bytes.
-    /// 
+    ///
     /// Requests that attempt to write too many values at once will exceed
     /// the 256-byte limit of the request packet.
-    /// 
+    ///
     /// ---
-    /// 
+    ///
     /// If you intentionally need to bypass the request packet length limit,
     /// enable the Cargo feature as shown below.
-    /// 
+    ///
     /// ## Warning: packets produced with this feature enabled may fail during communication.
-    /// 
+    ///
     /// ```ignore
     /// [dependencies]
     /// modbus-rtu = { version = "1.0", features = ["unlimited_packet_size"] }
@@ -23,14 +23,14 @@ pub enum RequestPacketError {
 
     /// This error is raised when the expected response packet would exceed the
     /// Modbus RTU protocol's maximum packet length of 256 bytes.
-    /// 
+    ///
     /// ---
-    /// 
+    ///
     /// If you intentionally need to bypass the response packet length limit,
     /// enable the Cargo feature as shown below.
-    /// 
+    ///
     /// ## Warning: packets produced with this feature enabled may fail during communication.
-    /// 
+    ///
     /// ```ignore
     /// [dependencies]
     /// modbus-rtu = { version = "1.0", features = ["unlimited_packet_size"] }
@@ -40,22 +40,21 @@ pub enum RequestPacketError {
 
     /// This error occurs when attempting to broadcast a function that does not
     /// support broadcasting (e.g., 0x01, 0x03).
-    /// 
+    ///
     /// ---
-    /// 
+    ///
     /// If you intentionally need to broadcast such functions, enable the Cargo
     /// feature as shown below.
-    /// 
+    ///
     /// ## Warning: packets produced with this feature enabled may fail during communication.
-    /// 
+    ///
     /// ```ignore
     /// [dependencies]
     /// modbus-rtu = { version = "1.0", features = ["enforce_broadcast"] }
     /// ```
-    /// 
+    ///
     CannotBroadcast,
 }
-
 
 impl std::fmt::Display for RequestPacketError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -67,6 +66,5 @@ impl std::fmt::Display for RequestPacketError {
         f.write_str(message)
     }
 }
-
 
 impl std::error::Error for RequestPacketError {}
