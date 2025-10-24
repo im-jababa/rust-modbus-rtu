@@ -1,8 +1,8 @@
 [package]
 name = "modbus-rtu"
-version = "0.2.15"
+version = "1.0.0"
 edition = "2024"
-authors = ["Park JiSoo <cherryjeesoo@gmail.com>"]
+authors = ["Park JiSoo <im@jababa.im>"]
 description = "Standard Modbus RTU protocols"
 license = "MIT"
 
