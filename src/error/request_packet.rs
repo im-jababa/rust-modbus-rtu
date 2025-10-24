@@ -14,7 +14,7 @@ pub enum RequestPacketError {
     /// 
     /// ## Warning: packets produced with this feature enabled may fail during communication.
     /// 
-    /// ```
+    /// ```ignore
     /// [dependencies]
     /// modbus-rtu = { version = "1.0", features = ["unlimited_packet_size"] }
     /// ```
@@ -31,7 +31,7 @@ pub enum RequestPacketError {
     /// 
     /// ## Warning: packets produced with this feature enabled may fail during communication.
     /// 
-    /// ```
+    /// ```ignore
     /// [dependencies]
     /// modbus-rtu = { version = "1.0", features = ["unlimited_packet_size"] }
     /// ```
@@ -48,7 +48,7 @@ pub enum RequestPacketError {
     /// 
     /// ## Warning: packets produced with this feature enabled may fail during communication.
     /// 
-    /// ```
+    /// ```ignore
     /// [dependencies]
     /// modbus-rtu = { version = "1.0", features = ["enforce_broadcast"] }
     /// ```

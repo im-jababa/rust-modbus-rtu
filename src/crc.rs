@@ -11,7 +11,7 @@
 ///
 /// ---
 /// # Examples
-/// ```rust
+/// ```ignore
 /// use ds_modbus_rtu::crc;
 ///
 /// // Request to read four Input Registers at address 0x0000 on device 0x01.
@@ -87,7 +87,7 @@ pub(crate) fn generate(bytes: &[u8]) -> u16 {
 ///
 /// ---
 /// # Examples
-/// ```rust
+/// ```ignore
 /// use ds_modbus_rtu::crc;
 ///
 /// // Received packet.

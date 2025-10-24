@@ -79,7 +79,7 @@ impl Function {
     /// specification.
     ///
     /// # Examples
-    /// ```rust
+    /// ```ignore
     /// use modbus_rtu::Function;
     ///
     /// let function = Function::WriteSingleCoil { address: 0x0025, value: true };

@@ -56,7 +56,7 @@ impl Response {
         }
 
         // crc check
-        crate::crc::validate(&bytes[0..(len - 2)])?;
+        crate::crc::validate(&bytes)?;
 
         // exception check
         let function_code = bytes[1];
