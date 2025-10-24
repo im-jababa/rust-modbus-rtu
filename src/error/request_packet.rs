@@ -56,8 +56,8 @@ pub enum RequestPacketError {
     CannotBroadcast,
 }
 
-impl std::fmt::Display for RequestPacketError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for RequestPacketError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let message = match self {
             Self::RequestTooBig => "Request packet exceeds 256-byte.",
             Self::ResponseWillTooBig => "Expected response packet exceeds 256-byte.",
@@ -67,4 +67,4 @@ impl std::fmt::Display for RequestPacketError {
     }
 }
 
-impl std::error::Error for RequestPacketError {}
+impl core::error::Error for RequestPacketError {}

@@ -15,8 +15,8 @@ pub enum ResponsePacketError {
     InvalidFormat,
 }
 
-impl std::fmt::Display for ResponsePacketError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for ResponsePacketError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
             f,
             "{}",
@@ -35,4 +35,4 @@ impl std::fmt::Display for ResponsePacketError {
     }
 }
 
-impl std::error::Error for ResponsePacketError {}
+impl core::error::Error for ResponsePacketError {}
