@@ -6,7 +6,6 @@ pub struct Request<'a> {
     timeout: std::time::Duration,
 }
 
-
 impl<'a> Request<'a> {
     /// Creates a new request for the specified Modbus slave, function, and timeout.
     ///
@@ -29,7 +28,7 @@ impl<'a> Request<'a> {
     ) -> Self {
         Self {
             modbus_id,
-            function: function,
+            function,
             timeout,
         }
     }
@@ -71,10 +70,12 @@ impl<'a> Request<'a> {
     /// Serializes the request into a Modbus RTU frame containing the device id,
     /// function payload, and CRC footer.
     ///
+    /// ---
     /// # Errors
-    /// Returns [`ReqPacketError`](crate::error::ReqPacketError) if the inner
+    /// Returns [`RequestPacketError`](crate::error::RequestPacketError) if the inner
     /// function cannot be encoded within the 256-byte packet limit.
     ///
+    /// ---
     /// # Examples
     /// ```rust
     /// use modbus_rtu::{Function, Request};

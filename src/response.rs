@@ -202,3 +202,18 @@ impl Response {
         }
     }
 }
+
+impl std::fmt::Display for Response {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Response::Status(items) => format!("{:?}", items),
+                Response::Value(items) => format!("{:?}", items),
+                Response::Success => "Success".to_string(),
+                Response::Exception(exception) => exception.to_string(),
+            }
+        )
+    }
+}

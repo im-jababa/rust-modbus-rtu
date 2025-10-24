@@ -102,3 +102,25 @@ impl Exception {
         }
     }
 }
+
+impl std::fmt::Display for Exception {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Exception::Undefined(code) => format!("undefined exception code 0x{:02X}", code),
+                Exception::IllegalFunction => "illegal function".to_string(),
+                Exception::IllegalDataAddress => "illegal data address".to_string(),
+                Exception::IllegalDataValue => "illegal data value".to_string(),
+                Exception::DeviceFailure => "device failure".to_string(),
+                Exception::Acknowledge => "acknowlegde".to_string(),
+                Exception::DeviceBusy => "device busy".to_string(),
+                Exception::MemoryParityError => "memory parity error".to_string(),
+                Exception::GatewayPathUnavailable => "gateway path unavailable".to_string(),
+                Exception::GatewayTargetDeviceFailedToRespond =>
+                    "gateway target device failed to respond".to_string(),
+            }
+        )
+    }
+}
