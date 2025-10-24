@@ -55,3 +55,18 @@ pub enum RequestPacketError {
     /// 
     CannotBroadcast,
 }
+
+
+impl std::fmt::Display for RequestPacketError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let message = match self {
+            Self::RequestTooBig => "Request packet exceeds 256-byte.",
+            Self::ResponseWillTooBig => "Expected response packet exceeds 256-byte.",
+            Self::CannotBroadcast => "This function does not support Modbus RTU broadcasting.",
+        };
+        f.write_str(message)
+    }
+}
+
+
+impl std::error::Error for RequestPacketError {}

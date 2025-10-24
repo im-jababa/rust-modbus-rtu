@@ -1,8 +1,4 @@
-//! ## error
-//! 
-
-mod function;
-pub use function::*;
+//! modbus-rtu crate error types
 
 mod request_packet;
 pub use request_packet::*;
