@@ -19,6 +19,3 @@ pub use response::*;
 
 mod master;
 pub use master::*;
-
-/// Convenient alias for fallible Modbus RTU calls that yield a [`Response`].
-pub type Result = core::result::Result<Response, crate::error::Error>;
