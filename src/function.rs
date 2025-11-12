@@ -201,4 +201,31 @@ impl Function {
         }
         Ok(buf.into_boxed_slice())
     }
+
+    /// Returns the minimum expected response length for this function.
+    ///
+    /// This helps callers pre-allocate receive buffers before the Modbus frame
+    /// arrives.
+    ///
+    /// ---
+    /// # Examples
+    /// ```rust
+    /// use modbus_rtu::Function;
+    ///
+    /// let func = Function::ReadHoldingRegisters { starting_address: 0, quantity: 2 };
+    /// assert_eq!(func.expected_len(), 5 + (2 * 2));
+    /// ```
+    /// 
+    pub const fn expected_len(&self) -> usize {
+        match self {
+            Function::ReadCoils { quantity, .. } |
+            Function::ReadDiscreteInputs { quantity, .. } => 5 + ((*quantity as usize + 7) / 8),
+            Function::ReadHoldingRegisters { quantity, .. } |
+            Function::ReadInputRegisters { quantity, .. } => 5 + (*quantity as usize * 2),
+            Function::WriteSingleCoil { .. } |
+            Function::WriteSingleRegister { .. } |
+            Function::WriteMultipleCoils { .. } |
+            Function::WriteMultipleRegisters { .. } => 8,
+        }
+    }
 }
