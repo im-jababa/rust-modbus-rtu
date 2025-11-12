@@ -1,6 +1,6 @@
 [package]
 name = "modbus-rtu"
-version = "1.0.1"
+version = "1.1.0"
 edition = "2024"
 authors = ["Park JiSoo <im@jababa.im>"]
 description = "Standard Modbus RTU protocols"
@@ -9,3 +9,6 @@ license = "MIT"
 [features]
 unlimited_packet_size = []
 enforce_broadcast = []
+
+[dependencies]
+serialport = "4.8"
