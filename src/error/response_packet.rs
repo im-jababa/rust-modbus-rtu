@@ -22,14 +22,14 @@ impl core::fmt::Display for ResponsePacketError {
             "{}",
             match self {
                 Self::TooShort(len) => format!(
-                    "Response packet too short; expected at least 5 bytes but received {len}."
+                    "response packet too short; expected at least 5 bytes but received {len}."
                 ),
                 Self::CRCMismatch { expected, received } => format!(
-                    "Response CRC mismatch: expected 0x{expected:04X}, received 0x{received:04X}."
+                    "response CRC mismatch: expected 0x{expected:04X}, received 0x{received:04X}."
                 ),
                 Self::UnexpectedResponder(id) =>
-                    format!("Response came from unexpected Modbus slave id 0x{id:02X}."),
-                Self::InvalidFormat => format!("Response payload format is invalid."),
+                    format!("response came from unexpected Modbus slave id 0x{id:02X}."),
+                Self::InvalidFormat => format!("response payload format is invalid."),
             }
         )
     }

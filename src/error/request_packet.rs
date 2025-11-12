@@ -59,9 +59,9 @@ pub enum RequestPacketError {
 impl core::fmt::Display for RequestPacketError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         let message = match self {
-            Self::RequestTooBig => "Request packet exceeds 256-byte.",
-            Self::ResponseWillTooBig => "Expected response packet exceeds 256-byte.",
-            Self::CannotBroadcast => "This function does not support Modbus RTU broadcasting.",
+            Self::RequestTooBig => "request packet exceeds 256-byte.",
+            Self::ResponseWillTooBig => "expected response packet exceeds 256-byte.",
+            Self::CannotBroadcast => "this function does not support Modbus RTU broadcasting.",
         };
         f.write_str(message)
     }
