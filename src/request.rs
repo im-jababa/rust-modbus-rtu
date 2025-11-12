@@ -3,7 +3,7 @@
 pub struct Request<'a> {
     modbus_id: u8,
     function: &'a crate::Function,
-    timeout: std::time::Duration,
+    timeout: core::time::Duration,
 }
 
 impl<'a> Request<'a> {
