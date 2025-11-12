@@ -106,9 +106,9 @@ impl Master {
     /// # }
     /// ```
     /// 
-    pub fn send(&mut self, req: &Request) -> crate::Result {
+    pub fn send(&mut self, req: &Request) -> Result<Response, crate::error::Error> {
         while self.last_tx.elapsed() <= Self::idle_time_rs485(self.baud_rate) {
-            std::thread::sleep(core::time::Duration::from_micros(1));
+            std::hint::spin_loop();
         }
         let frame = req.to_bytes().map_err(|e| crate::error::Error::Request(e))?;
         self.port.clear(serialport::ClearBuffer::Output).map_err(|e| crate::error::Error::IO(e.into()))?;
@@ -116,9 +116,13 @@ impl Master {
         if req.is_broadcasting() {
             return Ok(Response::Success);
         }
-        std::thread::sleep(Self::idle_time_rs485(self.baud_rate));
+        let post_tx_idle = Self::idle_time_rs485(self.baud_rate);
+        let wait_start = std::time::Instant::now();
+        while wait_start.elapsed() <= post_tx_idle {
+            std::hint::spin_loop();
+        }
         let mut buf: [u8; 256] = [0; 256];
-        let len = self.read(&mut buf, req.timeout())?;
+        let len = self.read(&mut buf, req.timeout(), req.function().expected_len())?;
         if len == 0 {
             return Err(crate::error::Error::IO(std::io::ErrorKind::TimedOut.into()));
         }
@@ -127,6 +131,7 @@ impl Master {
 
     /// Writes a Modbus frame to the serial port and records the transmit instant.
     fn write(&mut self, frame: &[u8]) -> Result<(), crate::error::Error> {
+        // println!("will write {}bytes ({:?})", frame.len(), frame);
         self.port.write_all(frame)
             .map_err(|e| crate::error::Error::IO(e.into()))?;
         self.last_tx = std::time::Instant::now();
@@ -134,20 +139,39 @@ impl Master {
     }
 
     /// Reads bytes until the slave stops responding or `buf` fills up.
-    fn read(&mut self, buf: &mut [u8], timeout: core::time::Duration) -> Result<usize, crate::error::Error> {
+    fn read(&mut self, buf: &mut [u8], timeout: core::time::Duration, expected_len: usize) -> Result<usize, crate::error::Error> {
         let start = std::time::Instant::now();
         let mut len: usize = 0;
         while start.elapsed() <= timeout {
             let n = match self.port.read(&mut buf[len..]) {
-                Ok(n) => n,
-                Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => if len == 0 { continue } else { break },
+                Ok(n) => {
+                    // println!("received {} bytes: {:?}", n, &buf[len..len + n]);
+                    n
+                },
+                Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => if len == 0 { continue } else {
+                    if len >= 5
+                    && buf[1] & 0x80 != 0 {
+                        // println!("idle detected (exception length)");
+                        break;
+                    }
+                    if len < expected_len {
+                        continue;
+                    }
+                    // println!("idle detected");
+                    break
+                },
                 Err(e) => return Err(crate::error::Error::IO(e.into())),
             };
             len += n;
             if len >= buf.len() {
+                // println!("buffer full");
                 break;
             }
         }
+        if start.elapsed() > timeout {
+            // println!("timeout detected");
+        }
+        // println!("final: {}bytes {:?}", len, &buf[0..len]);
         Ok(len)
     }
 
