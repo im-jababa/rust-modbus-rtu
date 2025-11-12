@@ -16,3 +16,6 @@ pub use request::*;
 
 mod response;
 pub use response::*;
+
+mod master;
+pub use master::*;
