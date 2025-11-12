@@ -7,8 +7,10 @@ description = "Standard Modbus RTU protocols"
 license = "MIT"
 
 [features]
+default = ["master"]
+master = ["serialport"]
 unlimited_packet_size = []
 enforce_broadcast = []
 
 [dependencies]
-serialport = "4.8"
+serialport = { version = "4.8", optional = true }
