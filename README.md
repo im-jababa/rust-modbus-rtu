@@ -6,12 +6,51 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/im-jababa/rust-modbus-rtu/rust.yml?branch=main&style=for-the-badge)](https://github.com/im-jababa/rust-modbus-rtu/actions?query=branch%3Amain)
 
 This crate provides helpers for building and decoding standard Modbus RTU request and response packets.
+It now ships with a synchronous `Master` that can talk to a serial port directly, while still
+exposing the lower-level building blocks for applications that prefer to manage framing themselves.
 
 ---
 
 # Usage
 
-## Sending
+## High-level master (auto write/read)
+
+```rust
+use modbus_rtu::{Function, Master, Request};
+
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let mut master = Master::new_rs485("/dev/ttyUSB0", 19_200)?;
+
+    let func = Function::ReadHoldingRegisters { starting_address: 0x0000, quantity: 2 };
+    let request = Request::new(0x01, &func, std::time::Duration::from_millis(200));
+
+    let response = master.send(&request)?;
+    println!("response: {response:?}");
+    Ok(())
+}
+```
+
+The master enforces the Modbus RTU silent interval (T3.5) before/after each transmission,
+flushes the TX buffer, reads until the slave stops talking, and automatically decodes the reply.
+
+---
+
+## Opting out of the master to shrink binaries
+
+The synchronous master and its `serialport` dependency are enabled by default. If you only need the
+packet-building utilities, disable default features in your `Cargo.toml`:
+
+```toml
+[dependencies]
+modbus-rtu = { version = "1.1", default-features = false }
+```
+
+You can always re-enable the high-level API with `features = ["master"]` when needed.
+
+
+---
+
+## Manual packet construction
 
 First, construct the function you want to issue.
 The following example reads four input registers starting at address `0x1234`.
@@ -44,14 +83,11 @@ Finally, convert the request into a Modbus RTU frame.
 let packet: Box<[u8]> = request.to_bytes().expect("Failed to build request packet");
 ```
 
-*Sending the bytes to an actual device is not yet implemented in this crate.*
+You can now write `packet` through any transport of your choice (UART, TCP tunnel, etc.).
 
 ---
 
 ## Receiving
-
-*Receiving bytes from a physical device is also outside the scope of this crate.*
-*This example assumes you already obtained the raw response bytes.*
 
 With the original request available, attempt to decode the response bytes as shown below.
 
