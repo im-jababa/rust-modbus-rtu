@@ -4,21 +4,44 @@ on:
   push:
     branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "v*" ]
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        feature_set:
+          - name: default
+            args: ""
+          - name: no-default-features
+            args: "--no-default-features"
+          - name: master
+            args: "--no-default-features --features master"
+          - name: async
+            args: "--no-default-features --features async"
+          - name: unlimited-packet-size
+            args: "--no-default-features --features unlimited_packet_size"
+          - name: enforce-broadcast
+            args: "--no-default-features --features enforce_broadcast"
+          - name: master-with-unlimited-packet-size
+            args: "--no-default-features --features 'master unlimited_packet_size'"
+          - name: async-with-enforce-broadcast
+            args: "--no-default-features --features 'async enforce_broadcast'"
+          - name: all-features
+            args: "--all-features"
+
+    name: build (${{ matrix.feature_set.name }})
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Install libudev
-      run: sudo apt-get update && sudo apt-get install -y libudev-dev
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v4
+      - name: Install libudev
+        run: sudo apt-get update && sudo apt-get install -y libudev-dev
+      - name: Build
+        run: cargo build --verbose ${{ matrix.feature_set.args }}
+      - name: Run tests
+        run: cargo test --verbose ${{ matrix.feature_set.args }}
