@@ -17,6 +17,7 @@ pub use request::*;
 mod response;
 pub use response::*;
 
+#[cfg(feature = "master")]
 mod master;
 #[cfg(feature = "master")]
 pub use master::*;
